@@ -111,7 +111,8 @@ const WhatsOn = () => {
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    marginBottom: '40px'
+                    marginBottom: '30px',
+                    gap: '8px'
                 }}>
                     <button
                         onClick={() => changeMonth(-1)}
@@ -119,16 +120,18 @@ const WhatsOn = () => {
                             background: 'transparent',
                             border: '1px solid #444',
                             color: 'var(--color-gold)',
-                            fontSize: '18px',
+                            fontSize: '13px',
                             cursor: 'pointer',
-                            padding: '10px 25px',
-                            borderRadius: '30px',
+                            padding: '8px 14px',
+                            borderRadius: '20px',
                             transition: 'all 0.2s',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '10px',
+                            gap: '4px',
                             textTransform: 'uppercase',
-                            letterSpacing: '1px'
+                            letterSpacing: '0.5px',
+                            whiteSpace: 'nowrap',
+                            flexShrink: 0
                         }}
                         onMouseEnter={(e) => {
                             e.target.style.borderColor = 'var(--color-gold)';
@@ -139,17 +142,19 @@ const WhatsOn = () => {
                             e.target.style.background = 'transparent';
                         }}
                     >
-                        &#9664; Prev Month
+                        &#9664; Prev
                     </button>
 
                     <h2 style={{
-                        fontSize: '36px',
+                        fontSize: 'clamp(18px, 5vw, 36px)',
                         color: 'var(--color-gold)',
                         margin: '0',
                         textAlign: 'center',
                         textTransform: 'uppercase',
-                        letterSpacing: '4px',
-                        textShadow: '0 0 10px rgba(212, 163, 63, 0.2)'
+                        letterSpacing: '2px',
+                        textShadow: '0 0 10px rgba(212, 163, 63, 0.2)',
+                        flex: 1,
+                        minWidth: 0
                     }}>
                         {monthName}
                     </h2>
@@ -160,16 +165,18 @@ const WhatsOn = () => {
                             background: 'transparent',
                             border: '1px solid #444',
                             color: 'var(--color-gold)',
-                            fontSize: '18px',
+                            fontSize: '13px',
                             cursor: 'pointer',
-                            padding: '10px 25px',
-                            borderRadius: '30px',
+                            padding: '8px 14px',
+                            borderRadius: '20px',
                             transition: 'all 0.2s',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '10px',
+                            gap: '4px',
                             textTransform: 'uppercase',
-                            letterSpacing: '1px'
+                            letterSpacing: '0.5px',
+                            whiteSpace: 'nowrap',
+                            flexShrink: 0
                         }}
                         onMouseEnter={(e) => {
                             e.target.style.borderColor = 'var(--color-gold)';
@@ -180,7 +187,7 @@ const WhatsOn = () => {
                             e.target.style.background = 'transparent';
                         }}
                     >
-                        Next Month &#9654;
+                        Next &#9654;
                     </button>
                 </div>
 
