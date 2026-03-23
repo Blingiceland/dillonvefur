@@ -1,0 +1,18 @@
+{
+  "files": {
+    "main.css": "/dillonvefur/static/css/main.9cf6ec45.css",
+    "main.js": "/dillonvefur/static/js/main.98a07a84.js",
+    "static/media/live_music_new.jpg": "/dillonvefur/static/media/live_music_new.ff079920293a4a3f2355.jpg",
+    "static/media/whisky_shelf.jpg": "/dillonvefur/static/media/whisky_shelf.4d19f585f589e8abc91e.jpg",
+    "static/media/andrea1.jpg": "/dillonvefur/static/media/andrea1.2a6ae40b27dd5a9e52b1.jpg",
+    "static/media/6.png": "/dillonvefur/static/media/6.cd61bc7262b320261c60.png",
+    "static/media/tab-icon.png": "/dillonvefur/static/media/tab-icon.b075ef82b117891ae14a.png",
+    "index.html": "/dillonvefur/index.html",
+    "main.9cf6ec45.css.map": "/dillonvefur/static/css/main.9cf6ec45.css.map",
+    "main.98a07a84.js.map": "/dillonvefur/static/js/main.98a07a84.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.9cf6ec45.css",
+    "static/js/main.98a07a84.js"
+  ]
+}
