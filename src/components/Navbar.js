@@ -37,6 +37,10 @@ const Navbar = () => {
                 <a href="https://bce3rd-eu.myshopify.com/" target="_blank" rel="noopener noreferrer" className="nav-link">Merchandise</a>
                 <span className="text-gold">•</span>
                 <Link to="/bookdillon" className="nav-link">Book Dillon</Link>
+                <span className="text-gold">•</span>
+                <Link to="/whisky" className="nav-link">Whisky List</Link>
+                <span className="text-gold">•</span>
+                <Link to="/drinks" className="nav-link">Drinks Menu</Link>
             </div>
 
             {/* Logo Container - Larger - HIDDEN ON EVENTS PAGE */}

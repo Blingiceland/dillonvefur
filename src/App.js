@@ -6,6 +6,8 @@ import WhatsOn from './pages/WhatsOn';
 import Whiskeys from './pages/Whiskeys';
 import Merch from './pages/Merch';
 import BookDillon from './pages/BookDillon';
+import WhiskyList from './pages/WhiskyList';
+import DrinksMenu from './pages/DrinksMenu';
 import Footer from './components/Footer';
 import './index.css';
 import tabIcon from './assets/tab-icon.png';
@@ -37,6 +39,8 @@ function App() {
                     <Route path="/whiskeys" element={<Whiskeys />} />
                     <Route path="/merch" element={<Merch />} />
                     <Route path="/bookdillon" element={<BookDillon />} />
+                    <Route path="/whisky" element={<WhiskyList />} />
+                    <Route path="/drinks" element={<DrinksMenu />} />
                 </Routes>
 
                 <Footer />
