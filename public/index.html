@@ -2,43 +2,89 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/png" href="%PUBLIC_URL%/tab-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <meta name="color-scheme" content="dark" />
+
+    <title>Dillon Whiskey Bar | Live Music & 250+ Whiskies in Reykjavík</title>
     <meta
       name="description"
-      content="Dillon Whiskey Bar – Live music, DJs & whiskey in the heart of Reykjavík. Est. 1999."
+      content="Dillon Whiskey Bar on Laugavegur 30, Reykjavík. Over 250 whiskies, live rock and blues, resident DJ Andrea and happy hour every day 12–19. Est. 1999."
     />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
+    <link rel="canonical" href="https://www.dillon.is/" />
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>Dillon | Whiskey Bar & Live Music</title>
-    <script src="https://unpkg.com/@daily-co/daily-js"></script>
+    <!-- Open Graph / Facebook / Instagram / WhatsApp link previews -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Dillon Whiskey Bar" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:title" content="Dillon Whiskey Bar | Live Music & 250+ Whiskies in Reykjavík" />
+    <meta property="og:description" content="Laugavegur 30, Reykjavík. Over 250 whiskies, live rock and blues, resident DJ Andrea and happy hour every day 12–19." />
+    <meta property="og:url" content="https://www.dillon.is/" />
+    <meta property="og:image" content="https://www.dillon.is/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Dillon Whiskey Bar logo over the whisky shelf" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Dillon Whiskey Bar | Live Music & 250+ Whiskies in Reykjavík" />
+    <meta name="twitter:description" content="Laugavegur 30, Reykjavík. Over 250 whiskies, live rock and blues, resident DJ Andrea and happy hour every day 12–19." />
+    <meta name="twitter:image" content="https://www.dillon.is/og-image.jpg" />
+
+    <link rel="icon" type="image/png" href="%PUBLIC_URL%/tab-icon.png" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/apple-touch-icon.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+    <!-- Fonts: preconnect + non-blocking stylesheet (was a render-blocking @import in CSS) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@300;400;500;700&family=Inter:wght@400;600&display=swap"
+    />
+
+    <!-- Local business structured data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BarOrPub",
+      "@id": "https://www.dillon.is/#venue",
+      "name": "Dillon Whiskey Bar",
+      "alternateName": "Dillon",
+      "url": "https://www.dillon.is/",
+      "image": "https://www.dillon.is/og-image.jpg",
+      "logo": "https://www.dillon.is/logo512.png",
+      "description": "Whiskey bar and live music venue in the heart of Reykjavík since 1999. Over 250 whiskies, live rock and blues, resident DJ Andrea.",
+      "foundingDate": "1999",
+      "telephone": "+354 537 9700",
+      "email": "dillon@dillon.is",
+      "priceRange": "$$",
+      "servesCuisine": "Whisky, cocktails, beer",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Laugavegur 30",
+        "postalCode": "101",
+        "addressLocality": "Reykjavík",
+        "addressCountry": "IS"
+      },
+      "openingHoursSpecification": [
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"], "opens": "12:00", "closes": "01:00" },
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Friday", "Saturday"], "opens": "12:00", "closes": "03:00" }
+      ],
+      "hasMenu": "https://www.dillon.is/drinks",
+      "sameAs": [
+        "https://www.facebook.com/DillonWhiskeyBar/",
+        "https://www.instagram.com/dillonwhiskeybar/",
+        "https://www.tripadvisor.com/Attraction_Review-g189970-d4326058-Reviews-Dillon_Whiskey_Bar-Reykjavik_Capital_Region.html",
+        "https://visitreykjavik.is/service/dillon"
+      ]
+    }
+    </script>
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>
+      Dillon Whiskey Bar, Laugavegur 30, 101 Reykjavík. Open Sun–Thu 12:00–01:00, Fri–Sat 12:00–03:00. Happy hour every day 12–19.
+      Enable JavaScript to see the event schedule, whisky list and drinks menu.
+    </noscript>
     <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
   </body>
 </html>

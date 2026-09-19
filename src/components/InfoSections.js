@@ -1,11 +1,10 @@
 import React from 'react';
 
-// Using the new/existing images
-const aboutImg = require('../assets/andrea1.jpg');
-const musicImg = require('../assets/live_music_new.jpg'); // New image
-const whiskyImg = require('../assets/whisky_shelf.jpg');
+import aboutImg from '../assets/andrea1.webp';
+import musicImg from '../assets/live_music_new.webp';
+import whiskyImg from '../assets/whisky_shelf.webp';
 
-const Section = ({ title, text, image, imageLeft }) => {
+const Section = ({ title, text, image, imageAlt, imageLeft }) => {
     return (
         <div
             id={title === 'Whisky' ? 'whiskey' : undefined}
@@ -36,10 +35,9 @@ const Section = ({ title, text, image, imageLeft }) => {
                     </a>
                 )}
             </div>
-            <div
-                className="info-image"
-                style={{ backgroundImage: `url(${image})` }}
-            />
+            <div className="info-image">
+                <img src={image} alt={imageAlt} width="1600" height="1068" loading="lazy" decoding="async" />
+            </div>
         </div>
     );
 };
@@ -50,6 +48,7 @@ const InfoSections = () => {
             <Section
                 title="About Dillon"
                 image={aboutImg}
+                imageAlt="DJ Andrea behind the decks at Dillon"
                 imageLeft={false}
                 text={[
                     "Dillon is a place that keeps things simple. A bar where the music does the talking, the drinks are honest, and the atmosphere is shaped by the people who walk through the door. It doesn't try to be anything else — and never has.",
@@ -60,6 +59,7 @@ const InfoSections = () => {
             <Section
                 title="Live Music"
                 image={musicImg}
+                imageAlt="Live band playing on the top floor at Dillon"
                 imageLeft={true}
                 text={[
                     "Live music is a core part of Dillon. Most weekends feature live performances, with an emphasis on rock — loud guitars, real bands, and proper late-night energy — though other styles make an appearance from time to time.",
@@ -71,6 +71,7 @@ const InfoSections = () => {
             <Section
                 title="Whisky"
                 image={whiskyImg}
+                imageAlt="The whisky shelf at Dillon with over 250 bottles"
                 imageLeft={false}
                 text={[
                     "With more than 250 whiskies always on the shelf, Dillon is built for both curious newcomers and seasoned drinkers. Our bartenders are trained to help you find a whiskey that suits your taste — whether you know exactly what you're looking for or you're just starting out.",

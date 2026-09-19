@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { fetchMenuData, groupBy } from '../utils/fetchMenu';
+import { usePageMeta } from '../utils/seo';
 
 // Preferred tab order; any other country found in the sheet is appended after these.
 const REGION_ORDER = ['Scotland', 'USA', 'Ireland', 'International'];
@@ -19,6 +20,11 @@ const CATEGORY_ORDER = {
 };
 
 const WhiskyList = () => {
+    usePageMeta({
+        title: 'Whisky List',
+        path: '/whisky',
+        description: 'The full whisky list at Dillon Whiskey Bar, Reykjavík: Scotch, bourbon, rye, Irish and Japanese whiskies by region, with prices per 30 ml.',
+    });
     const [whiskies, setWhiskies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeRegion, setActiveRegion] = useState('All');
@@ -104,7 +110,10 @@ const WhiskyList = () => {
                 <div style={{ maxWidth: '400px', margin: '0 auto 32px' }}>
                     <input
                         type="text"
-                        placeholder="Search whisky..."
+                        placeholder="Search whisky…"
+                        aria-label="Search whisky"
+                        name="whisky-search"
+                        autoComplete="off"
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                         style={{

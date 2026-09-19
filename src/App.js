@@ -1,50 +1,42 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import WhatsOn from './pages/WhatsOn';
-import Whiskeys from './pages/Whiskeys';
-import Merch from './pages/Merch';
 import BookDillon from './pages/BookDillon';
 import WhiskyList from './pages/WhiskyList';
 import DrinksMenu from './pages/DrinksMenu';
+import NotFound from './pages/NotFound';
 import Footer from './components/Footer';
 import './index.css';
-import tabIcon from './assets/tab-icon.png';
+
+// Client-side navigation keeps the scroll position; reset it on each route change.
+const ScrollToTop = () => {
+    const { pathname } = useLocation();
+    useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+    return null;
+};
 
 function App() {
-    useEffect(() => {
-        // Dynamically set the favicon
-        const link = document.querySelector("link[rel~='icon']");
-        if (link) {
-            link.href = tabIcon;
-        } else {
-            const newLink = document.createElement('link');
-            newLink.rel = 'icon';
-            newLink.href = tabIcon;
-            document.head.appendChild(newLink);
-        }
-
-        // Set page title
-        document.title = 'Dillon';
-    }, []);
-
     return (
         <Router>
+            <ScrollToTop />
             <div className="App">
                 <Navbar />
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/events" element={<WhatsOn />} />
-                    <Route path="/whiskeys" element={<Whiskeys />} />
-                    <Route path="/merch" element={<Merch />} />
-                    <Route path="/bookdillon" element={<BookDillon />} />
-                    <Route path="/whisky" element={<WhiskyList />} />
-                    <Route path="/drinks" element={<DrinksMenu />} />
-                </Routes>
-
+                <main>
+                    <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/events" element={<WhatsOn />} />
+                        <Route path="/bookdillon" element={<BookDillon />} />
+                        <Route path="/whisky" element={<WhiskyList />} />
+                        <Route path="/drinks" element={<DrinksMenu />} />
+                        <Route path="*" element={<NotFound />} />
+                    </Routes>
+                </main>
                 <Footer />
             </div>
+            <Analytics />
         </Router>
     );
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import logo from '../assets/6.png';
+import logo from '../assets/logo.webp';
 
 const Navbar = () => {
     const location = useLocation();
@@ -47,8 +47,8 @@ const Navbar = () => {
             {!isEventsPage && (
                 <div>
                     <Link to="/">
-                        <img src={logo} alt="DILLON" style={{
-                            height: '500px', // Increased from 300px to 500px
+                        <img src={logo} alt="Dillon Whiskey Bar" width="707" height="1000" fetchpriority="high" style={{
+                            height: 'min(500px, 55vh)',
                             width: 'auto',
                             filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.5))',
                             transition: 'transform 0.3s'
@@ -70,7 +70,7 @@ const Navbar = () => {
             text-decoration: none;
             padding-bottom: 5px;
             border-bottom: 2px solid transparent;
-            transition: all 0.3s;
+            transition: color 0.3s, border-color 0.3s, text-shadow 0.3s;
         }
         .nav-link:hover {
             color: #fff;

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { fetchMenuData, groupBy } from '../utils/fetchMenu';
+import { usePageMeta } from '../utils/seo';
 
 // Vöruflokkur values from the Google Sheet, in menu order.
 const CATEGORY_ORDER = [
@@ -47,6 +48,11 @@ const DISPLAY_NAMES = {
 };
 
 const DrinksMenu = () => {
+    usePageMeta({
+        title: 'Drinks Menu',
+        path: '/drinks',
+        description: 'Drinks menu at Dillon Whiskey Bar, Reykjavík: draft and bottled beer, whiskey cocktails, gin, rum, wine, shots and happy hour prices.',
+    });
     const [drinks, setDrinks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeCategory, setActiveCategory] = useState('All');

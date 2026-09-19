@@ -1,110 +1,120 @@
+// Events come from a Google Sheet with one tab per year (tab name = year, e.g. "2026").
+// Columns: A = date ("Thursday 19 March"), B = start time, C = band / event name,
+//          D = contact (never shown), E = booked by, F = genre, G = private flag, H = whisky school
+const SHEET_ID = '1LzwjwuFwCaNowXFavQuGjPYPqQV7iweFftqABDu9DNs';
+const sheetUrl = (year) =>
+    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${year}`;
 
-const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1LzwjwuFwCaNowXFavQuGjPYPqQV7iweFftqABDu9DNs/gviz/tq?tqx=out:csv&sheet=2026';
+const COL = { date: 0, time: 1, title: 2, genre: 5, isPrivate: 6 };
 
-// Month name mapping for parsing dates like "Thursday 19 March"
 const MONTH_MAP = {
-    'january': 0, 'february': 1, 'march': 2, 'april': 3,
-    'may': 4, 'june': 5, 'july': 6, 'august': 7,
-    'september': 8, 'october': 9, 'november': 10, 'december': 11
+    january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+    july: 6, august: 7, september: 8, october: 9, november: 10, december: 11,
 };
+const WEEKDAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
 
 /**
- * Parsed Event definition
  * @typedef {Object} DEvent
  * @property {string} id
- * @property {string} title - Band / event name
+ * @property {string} title
  * @property {Date} dateObj
- * @property {string} dateDisplay
- * @property {string} time
- * @property {string} dayOfWeek - e.g. "Thursday"
- * @property {number} dayNum - day of month
- * @property {string} monthYear - e.g. "March 2026"
+ * @property {string} dateDisplay - e.g. "19. March"
+ * @property {string} time - "21:00"
+ * @property {string} dayOfWeek
+ * @property {string} genre
  */
 
-export const fetchEvents = async () => {
-    try {
-        const response = await fetch(GOOGLE_SHEET_URL);
-        const text = await response.text();
-        return parseCSV(text);
-    } catch (error) {
-        console.error("Failed to fetch events:", error);
-        return [];
+// RFC 4180-style CSV parser (quoted fields, escaped quotes, newlines inside quotes)
+const parseCSV = (text) => {
+    const rows = [];
+    let row = [];
+    let cur = '';
+    let inQuote = false;
+    for (let i = 0; i < text.length; i++) {
+        const c = text[i];
+        if (inQuote) {
+            if (c === '"') {
+                if (text[i + 1] === '"') { cur += '"'; i++; } else { inQuote = false; }
+            } else {
+                cur += c;
+            }
+        } else if (c === '"') {
+            inQuote = true;
+        } else if (c === ',') {
+            row.push(cur); cur = '';
+        } else if (c === '\n') {
+            row.push(cur); rows.push(row); row = []; cur = '';
+        } else if (c !== '\r') {
+            cur += c;
+        }
     }
+    if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+    return rows;
 };
 
-const parseCSV = (text) => {
-    const lines = text.trim().split('\n');
-    // Skip header row
+const cell = (row, idx) => (row[idx] || '').trim();
+
+const isCancelled = (title) => /cancell?ed/i.test(title);
+const isPrivate = (row) =>
+    !!cell(row, COL.isPrivate) || /\bprivate\b/i.test(cell(row, COL.title));
+
+/**
+ * Parse the CSV of one year tab. Rows whose weekday name does not match the date in
+ * `year` are dropped; if most rows mismatch the whole tab is treated as the wrong year
+ * (Google returns the first tab when the requested tab does not exist) and [] is returned.
+ */
+export const parseEventsCSV = (text, year) => {
+    const rows = parseCSV(text);
     const events = [];
-    const currentYear = 2026; // The sheet is for 2026
+    let mismatches = 0;
 
-    for (let i = 1; i < lines.length; i++) {
-        const line = lines[i].trim();
-        if (!line) continue;
+    for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        const title = cell(row, COL.title).replace(/\s+/g, ' ');
+        if (!title || isCancelled(title) || isPrivate(row)) continue;
 
-        const cols = parseLine(line);
-        
-        // Column A = date (e.g. "Thursday 19 March")
-        // Column B = start time (e.g. "21:00")  
-        // Column C = band name
-        const dateRaw = (cols[0] || '').replace(/^"|"$/g, '').trim();
-        const time = (cols[1] || '').replace(/^"|"$/g, '').trim();
-        const band = (cols[2] || '').replace(/^"|"$/g, '').trim();
-
-        // Skip rows with no band name
-        if (!band) continue;
-
-        // Skip cancelled events
-        if (band.toLowerCase().includes('cancelled') || band.toLowerCase().includes('canceled')) continue;
-
-        // Parse date like "Thursday 19 March"
-        const dateParts = dateRaw.split(/\s+/);
-        if (dateParts.length < 3) continue;
-
-        const dayOfWeek = dateParts[0];
-        const dayNum = parseInt(dateParts[1], 10);
-        const monthName = dateParts[2].toLowerCase();
-        const month = MONTH_MAP[monthName];
-
+        const parts = cell(row, COL.date).split(/\s+/);
+        if (parts.length < 3) continue;
+        const [dayName, dayStr, monthName] = parts;
+        const dayNum = parseInt(dayStr, 10);
+        const month = MONTH_MAP[monthName.toLowerCase()];
         if (isNaN(dayNum) || month === undefined) continue;
 
-        const dateObj = new Date(currentYear, month, dayNum);
-
-        // Format display
-        const dateDisplay = `${dayNum}. ${dateParts[2]}`;
+        const dateObj = new Date(year, month, dayNum);
+        if (WEEKDAYS[dateObj.getDay()] !== dayName.toLowerCase()) { mismatches++; continue; }
 
         events.push({
-            id: `evt-${i}`,
-            title: band.trim(),
+            id: `evt-${year}-${i}`,
+            title,
             dateObj,
-            dateDisplay,
-            time: time || '21:00',
-            dayOfWeek,
-            dayNum,
-            monthYear: `${dateParts[2]} ${currentYear}`,
+            dateDisplay: `${dayNum}. ${monthName}`,
+            time: cell(row, COL.time) || '21:00',
+            dayOfWeek: dayName,
+            genre: cell(row, COL.genre),
+            monthYear: `${monthName} ${year}`,
             month,
         });
     }
 
-    // Sort by date
+    if (mismatches > events.length) return [];
     return events.sort((a, b) => a.dateObj - b.dateObj);
 };
 
-// Helper for CSV line parsing with quotes support
-const parseLine = (text) => {
-    const result = [];
-    let cur = '';
-    let inQuote = false;
-    for (let char of text) {
-        if (char === '"') {
-            inQuote = !inQuote;
-        } else if (char === ',' && !inQuote) {
-            result.push(cur);
-            cur = '';
-        } else {
-            cur += char;
-        }
+const fetchYear = async (year) => {
+    try {
+        const response = await fetch(sheetUrl(year));
+        const text = await response.text();
+        return parseEventsCSV(text, year);
+    } catch (error) {
+        console.error(`Failed to fetch events for ${year}:`, error);
+        return [];
     }
-    result.push(cur);
-    return result;
+};
+
+// Fetches the current year tab, plus next year from November on so January shows up in time.
+export const fetchEvents = async (now = new Date()) => {
+    const year = now.getFullYear();
+    const years = now.getMonth() >= 10 ? [year, year + 1] : [year];
+    const perYear = await Promise.all(years.map(fetchYear));
+    return perYear.flat().sort((a, b) => a.dateObj - b.dateObj);
 };

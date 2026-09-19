@@ -2,8 +2,11 @@ import React from 'react';
 import WhatsOn from '../components/WhatsOn';
 
 import InfoSections from '../components/InfoSections';
+import { usePageMeta } from '../utils/seo';
 
 const Home = () => {
+    usePageMeta({ path: '/' });
+
     return (
         <div style={{
             minHeight: '100vh',

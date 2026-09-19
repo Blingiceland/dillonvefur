@@ -1,6 +1,12 @@
 import React from 'react';
+import { usePageMeta } from '../utils/seo';
 
 const BookDillon = () => {
+    usePageMeta({
+        title: 'Book Dillon',
+        path: '/bookdillon',
+        description: 'Book Dillon Whiskey Bar in Reykjavík for a private event or a live music show. Email dillon@dillon.is.',
+    });
     return (
         <div style={{
             paddingTop: '150px',
