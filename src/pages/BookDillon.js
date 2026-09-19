@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { usePageMeta, EMAIL, PHONE, PHONE_HREF } from '../utils/seo';
 
-const EVENT_TYPES = ['Private party', 'Live music / band booking', 'Company event', 'Birthday', 'Other'];
+const EVENT_TYPES = ['Private party', 'Company event', 'Birthday', 'Other'];
 
 const field = {
     width: '100%',
@@ -19,7 +20,7 @@ const BookDillon = () => {
     usePageMeta({
         title: 'Book Dillon',
         path: '/bookdillon',
-        description: 'Book Dillon Whiskey Bar in Reykjavík for a private party, company event or a live music show. Tell us the date, group size and what you have in mind.',
+        description: 'Book Dillon Whiskey Bar in Reykjavík for a private party or company event. Tell us the date, group size and what you have in mind.',
     });
 
     const [form, setForm] = useState({ name: '', email: '', phone: '', date: '', guests: '', type: EVENT_TYPES[0], message: '' });
@@ -53,8 +54,11 @@ const BookDillon = () => {
                 <div style={{ textAlign: 'center', marginBottom: '40px' }}>
                     <h1 className="text-gold" style={{ fontSize: 'clamp(36px, 6vw, 56px)', marginBottom: '16px', fontFamily: 'var(--font-heading)', textTransform: 'uppercase', letterSpacing: '3px' }}>Book Dillon</h1>
                     <p style={{ fontSize: '18px', lineHeight: 1.7, color: '#ccc', margin: '0 auto', maxWidth: '560px' }}>
-                        Private parties, company events and live shows. Fill in the details below and we get back to you within a day or two.
+                        Private parties and company events. Fill in the details below and we get back to you within a day or two.
                         Or just call us on <a href={PHONE_HREF} className="text-gold">{PHONE}</a>.
+                    </p>
+                    <p style={{ color: '#999', fontSize: '15px', marginTop: '16px' }}>
+                        A band or artist looking for a gig? <Link to="/play" className="text-gold">Apply at Play at Dillon</Link>.
                     </p>
                 </div>
 

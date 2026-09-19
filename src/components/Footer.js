@@ -26,6 +26,11 @@ const Footer = () => {
                     </a>
                 </p>
                 <p style={{ marginBottom: '10px' }}>Live music, DJs & whiskey in the heart of Reykjavík</p>
+                <p style={{ marginBottom: '10px' }}>
+                    <a href="/bookdillon" style={{ color: '#ccc' }}>Book Dillon</a>
+                    <span style={{ margin: '0 12px' }}>·</span>
+                    <a href="/play" style={{ color: '#ccc' }}>Play at Dillon</a>
+                </p>
                 <p>
                     <a href="tel:+3545379700" style={linkStyle}>+354 537 9700</a>
                     <span style={{ margin: '0 12px' }}>·</span>
