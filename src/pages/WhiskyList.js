@@ -53,12 +53,27 @@ const WhiskyList = () => {
         return items;
     }, [whiskies, activeRegion, search]);
 
-    const grouped = useMemo(() => {
-        const g = groupBy(filtered, 'category');
-        return Object.entries(g).sort(([a], [b]) => {
+    const groupByCategory = (items) =>
+        Object.entries(groupBy(items, 'category')).sort(([a], [b]) => {
             return (CATEGORY_ORDER[a] || 99) - (CATEGORY_ORDER[b] || 99);
         });
-    }, [filtered]);
+
+    const regionRank = (r) => {
+        if (!r || r === 'Other') return 999;
+        const i = REGION_ORDER.indexOf(r);
+        return i === -1 ? 500 : i;
+    };
+
+    // In the "All" view, group by country first with a country heading above its subcategories.
+    // When a single region is selected, show only the subcategory sections.
+    const sections = useMemo(() => {
+        if (activeRegion !== 'All') {
+            return [{ country: null, groups: groupByCategory(filtered) }];
+        }
+        return Object.entries(groupBy(filtered, 'country'))
+            .sort(([a], [b]) => regionRank(a) - regionRank(b) || a.localeCompare(b))
+            .map(([country, items]) => ({ country, groups: groupByCategory(items), count: items.length }));
+    }, [filtered, activeRegion]);
 
     const formatPrice = (p) => p.toLocaleString('is-IS') + ' kr.';
 
@@ -149,7 +164,28 @@ const WhiskyList = () => {
                     </p>
                 )}
 
-                {grouped.map(([category, items]) => (
+                {sections.map(({ country, groups, count }) => (
+                <div key={country || 'single'} style={{ marginBottom: country ? '64px' : 0 }}>
+                    {country && (
+                        <div style={{ marginBottom: '32px' }}>
+                            <h2 style={{
+                                fontFamily: 'var(--font-heading)',
+                                color: '#f0e6cc',
+                                fontSize: 'clamp(20px, 3vw, 28px)',
+                                letterSpacing: '5px',
+                                textTransform: 'uppercase',
+                                margin: 0,
+                            }}>
+                                {country}
+                                <span style={{ color: '#555', fontSize: '13px', letterSpacing: '2px', marginLeft: '14px' }}>
+                                    {count}
+                                </span>
+                            </h2>
+                            <div style={{ width: '40px', height: '2px', background: '#c89b3c', marginTop: '12px' }} />
+                        </div>
+                    )}
+
+                {groups.map(([category, items]) => (
                     <div key={category} style={{ marginBottom: '48px' }}>
                         {/* Category header */}
                         <div style={{
@@ -158,7 +194,7 @@ const WhiskyList = () => {
                             gap: '16px',
                             marginBottom: '16px',
                         }}>
-                            <h2 style={{
+                            <h3 style={{
                                 fontFamily: 'var(--font-heading)',
                                 color: '#c89b3c',
                                 fontSize: '13px',
@@ -168,7 +204,7 @@ const WhiskyList = () => {
                                 whiteSpace: 'nowrap',
                             }}>
                                 {category}
-                            </h2>
+                            </h3>
                             <div style={{ flex: 1, height: '1px', background: '#1e1e1e' }} />
                             <span style={{ color: '#444', fontSize: '12px' }}>{items.length}</span>
                         </div>
@@ -209,6 +245,8 @@ const WhiskyList = () => {
                             </div>
                         ))}
                     </div>
+                ))}
+                </div>
                 ))}
             </div>
         </div>
