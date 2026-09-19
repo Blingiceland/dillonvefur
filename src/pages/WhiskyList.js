@@ -92,7 +92,7 @@ const WhiskyList = () => {
                 borderBottom: '1px solid #1a1a1a',
             }}>
                 <p style={{ color: '#c89b3c', letterSpacing: '6px', fontSize: '12px', textTransform: 'uppercase', marginBottom: '12px' }}>
-                    Over 250 expressions
+                    {loading ? 'By the dram · 30 ml' : `${whiskies.length} whiskies by the dram · 30 ml`}
                 </p>
                 <h1 style={{
                     fontFamily: 'var(--font-heading)',

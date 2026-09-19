@@ -1,16 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { fetchEvents } from '../utils/googleSheet';
 
-const MONTH_NAMES_IS = [
-    'Janúar', 'Febrúar', 'Mars', 'Apríl', 'Maí', 'Júní',
-    'Júlí', 'Ágúst', 'September', 'Október', 'Nóvember', 'Desember'
+const MONTH_NAMES = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
+// Horizontal month-by-month schedule strip on the home page.
 const WhatsOn = () => {
     const [allEvents, setAllEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const scrollRef = useRef(null);
-    const todayRef = useRef(null);
 
     useEffect(() => {
         const loadEvents = async () => {
@@ -24,11 +25,9 @@ const WhatsOn = () => {
     // Callback ref for auto-scroll — fires when the anchor card mounts
     const anchorCallback = (node) => {
         if (node && scrollRef.current) {
-            todayRef.current = node;
             requestAnimationFrame(() => {
                 const container = scrollRef.current;
                 if (!container) return;
-                // Get position relative to scroll container
                 const containerRect = container.getBoundingClientRect();
                 const cardRect = node.getBoundingClientRect();
                 const currentScroll = container.scrollLeft;
@@ -38,12 +37,11 @@ const WhatsOn = () => {
         }
     };
 
-    // Group events by month
     const groupedByMonth = allEvents.reduce((groups, evt) => {
         const key = `${evt.dateObj.getFullYear()}-${evt.dateObj.getMonth()}`;
         if (!groups[key]) {
             groups[key] = {
-                label: `${MONTH_NAMES_IS[evt.dateObj.getMonth()]} ${evt.dateObj.getFullYear()}`,
+                label: `${MONTH_NAMES[evt.dateObj.getMonth()]} ${evt.dateObj.getFullYear()}`,
                 events: []
             };
         }
@@ -59,15 +57,15 @@ const WhatsOn = () => {
     return (
         <div className="whatson-wrap" id="whatson">
             <div className="whatson-header-bar">
-                <h2>Dagskrá</h2>
-                <p>Flettu til hliðar til að sjá alla viðburði</p>
+                <h2>Schedule</h2>
+                <p>Swipe sideways to see every event</p>
             </div>
 
             <div className="whatson-hscroll gold-scrollbar" ref={scrollRef}>
                 {loading ? (
-                    <div className="whatson-loading">Sæki dagskrá...</div>
+                    <div className="whatson-loading">Loading schedule…</div>
                 ) : allEvents.length === 0 ? (
-                    <div className="whatson-empty">Engir viðburðir skráðir.</div>
+                    <div className="whatson-empty">No events scheduled yet.</div>
                 ) : (
                     Object.values(groupedByMonth).map((group, gi) => (
                         <div className="whatson-month-col" key={gi}>
@@ -81,7 +79,7 @@ const WhatsOn = () => {
                                     const globalIdx = allEvents.indexOf(evt);
                                     const isAnchor = globalIdx === firstUpcomingIndex;
 
-                                    const dayName = new Intl.DateTimeFormat('is-IS', { weekday: 'short' })
+                                    const dayName = new Intl.DateTimeFormat('en-GB', { weekday: 'short' })
                                         .format(evt.dateObj).toUpperCase();
 
                                     const classList = [
@@ -91,10 +89,12 @@ const WhatsOn = () => {
                                     ].filter(Boolean).join(' ');
 
                                     return (
-                                        <div
+                                        <Link
                                             key={evt.id}
+                                            to={`/events/${evt.slug}`}
                                             className={classList}
                                             ref={isAnchor ? anchorCallback : null}
+                                            aria-label={`${evt.title}, ${dayName} ${evt.dayNum} at ${evt.time}`}
                                         >
                                             <div className="whatson-card-date">
                                                 <span className="whatson-card-daynum">{evt.dayNum}</span>
@@ -102,7 +102,7 @@ const WhatsOn = () => {
                                             </div>
                                             <div className="whatson-card-title">{evt.title}</div>
                                             <div className="whatson-card-time">{evt.time}</div>
-                                        </div>
+                                        </Link>
                                     );
                                 })}
                             </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-
+import { Link } from 'react-router-dom';
 import aboutImg from '../assets/andrea1.webp';
 import musicImg from '../assets/live_music_new.webp';
 import whiskyImg from '../assets/whisky_shelf.webp';
@@ -29,10 +29,9 @@ const Section = ({ title, text, image, imageAlt, imageLeft }) => {
                     </p>
                 ))}
                 {title === "Whisky" && (
-                    <a href="https://tix.is" target="_blank" rel="noopener noreferrer"
-                        className="btn btn-primary" style={{ marginTop: '20px' }}>
-                        Whiskey School
-                    </a>
+                    <Link to="/whisky" className="btn btn-primary" style={{ marginTop: '20px' }}>
+                        See the Whisky List
+                    </Link>
                 )}
             </div>
             <div className="info-image">
@@ -75,7 +74,7 @@ const InfoSections = () => {
                 imageLeft={false}
                 text={[
                     "With more than 250 whiskies always on the shelf, Dillon is built for both curious newcomers and seasoned drinkers. Our bartenders are trained to help you find a whiskey that suits your taste — whether you know exactly what you're looking for or you're just starting out.",
-                    "We also host regular whiskey school sessions, and they are held in English whenever needed. Details and upcoming dates can be found via the Whiskey School link above."
+                    "We also host regular whiskey school sessions, held in English whenever needed. Ask at the bar or follow us on Instagram for upcoming dates."
                 ]}
             />
         </div>

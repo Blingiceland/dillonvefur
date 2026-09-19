@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/react';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import WhatsOn from './pages/WhatsOn';
+import EventPage from './pages/EventPage';
 import BookDillon from './pages/BookDillon';
 import WhiskyList from './pages/WhiskyList';
 import DrinksMenu from './pages/DrinksMenu';
@@ -28,6 +29,7 @@ function App() {
                     <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/events" element={<WhatsOn />} />
+                        <Route path="/events/:slug" element={<EventPage />} />
                         <Route path="/bookdillon" element={<BookDillon />} />
                         <Route path="/whisky" element={<WhiskyList />} />
                         <Route path="/drinks" element={<DrinksMenu />} />

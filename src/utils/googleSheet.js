@@ -1,11 +1,18 @@
 // Events come from a Google Sheet with one tab per year (tab name = year, e.g. "2026").
-// Columns: A = date ("Thursday 19 March"), B = start time, C = band / event name,
-//          D = contact (never shown), E = booked by, F = genre, G = private flag, H = whisky school
+// Fixed columns: A = date ("Thursday 19 March"), B = start time, C = band / event name,
+//                D = contact (never shown), E = booked by, F = genre, G = private flag, H = whisky school
+// Optional columns, found by header name anywhere in the header row:
+//                "Poster" (image URL), "Tickets" (ticket URL), "Entry" (e.g. "Free" or "2.500 kr.")
 const SHEET_ID = '1LzwjwuFwCaNowXFavQuGjPYPqQV7iweFftqABDu9DNs';
-const sheetUrl = (year) =>
+export const sheetUrl = (year) =>
     `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${year}`;
 
 const COL = { date: 0, time: 1, title: 2, genre: 5, isPrivate: 6 };
+const OPTIONAL_HEADERS = {
+    poster: /^(poster|plakat|mynd|image)/i,
+    tickets: /^(tickets?|miðar|miðasala|ticket url)/i,
+    entry: /^(entry|aðgang|verð|price|cover)/i,
+};
 
 const MONTH_MAP = {
     january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
@@ -16,12 +23,17 @@ const WEEKDAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'frida
 /**
  * @typedef {Object} DEvent
  * @property {string} id
+ * @property {string} slug - e.g. "2026-03-19-blues-beggi-smari", used in /events/:slug
  * @property {string} title
  * @property {Date} dateObj
  * @property {string} dateDisplay - e.g. "19. March"
+ * @property {number} dayNum
  * @property {string} time - "21:00"
  * @property {string} dayOfWeek
  * @property {string} genre
+ * @property {string} poster - image URL or ''
+ * @property {string} tickets - ticket URL or ''
+ * @property {string} entry - entry text or ''
  */
 
 // RFC 4180-style CSV parser (quoted fields, escaped quotes, newlines inside quotes)
@@ -52,11 +64,38 @@ const parseCSV = (text) => {
     return rows;
 };
 
-const cell = (row, idx) => (row[idx] || '').trim();
+const cell = (row, idx) => (idx === undefined ? '' : (row[idx] || '').trim());
+const pad = (n) => String(n).padStart(2, '0');
+
+const ICELANDIC = { á: 'a', ð: 'd', é: 'e', í: 'i', ó: 'o', ú: 'u', ý: 'y', þ: 'th', æ: 'ae', ö: 'o' };
+export const slugify = (text) =>
+    text
+        .toLowerCase()
+        .replace(/[áðéíóúýþæö]/g, (ch) => ICELANDIC[ch])
+        .normalize('NFD')
+        .replace(/[̀-ͯ]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 60);
+
+// Google Drive share links are not direct image URLs; convert them so they render in <img> and og:image.
+export const directImageUrl = (url) => {
+    const m = url.match(/drive\.google\.com\/(?:file\/d\/|open\?id=)([\w-]+)/);
+    return m ? `https://drive.google.com/uc?export=view&id=${m[1]}` : url;
+};
 
 const isCancelled = (title) => /cancell?ed/i.test(title);
 const isPrivate = (row) =>
     !!cell(row, COL.isPrivate) || /\bprivate\b/i.test(cell(row, COL.title));
+
+const findOptionalColumns = (header) => {
+    const found = {};
+    Object.entries(OPTIONAL_HEADERS).forEach(([key, re]) => {
+        const idx = header.findIndex((h, i) => i > COL.isPrivate && re.test((h || '').trim()));
+        if (idx !== -1) found[key] = idx;
+    });
+    return found;
+};
 
 /**
  * Parse the CSV of one year tab. Rows whose weekday name does not match the date in
@@ -65,6 +104,8 @@ const isPrivate = (row) =>
  */
 export const parseEventsCSV = (text, year) => {
     const rows = parseCSV(text);
+    if (!rows.length) return [];
+    const opt = findOptionalColumns(rows[0]);
     const events = [];
     let mismatches = 0;
 
@@ -83,14 +124,22 @@ export const parseEventsCSV = (text, year) => {
         const dateObj = new Date(year, month, dayNum);
         if (WEEKDAYS[dateObj.getDay()] !== dayName.toLowerCase()) { mismatches++; continue; }
 
+        const isoDate = `${year}-${pad(month + 1)}-${pad(dayNum)}`;
+        const poster = cell(row, opt.poster);
         events.push({
             id: `evt-${year}-${i}`,
+            slug: `${isoDate}-${slugify(title)}`,
+            isoDate,
             title,
             dateObj,
             dateDisplay: `${dayNum}. ${monthName}`,
+            dayNum,
             time: cell(row, COL.time) || '21:00',
             dayOfWeek: dayName,
             genre: cell(row, COL.genre),
+            poster: poster ? directImageUrl(poster) : '',
+            tickets: cell(row, opt.tickets),
+            entry: cell(row, opt.entry),
             monthYear: `${monthName} ${year}`,
             month,
         });
@@ -117,4 +166,12 @@ export const fetchEvents = async (now = new Date()) => {
     const years = now.getMonth() >= 10 ? [year, year + 1] : [year];
     const perYear = await Promise.all(years.map(fetchYear));
     return perYear.flat().sort((a, b) => a.dateObj - b.dateObj);
+};
+
+/** Load a single event by slug (the slug starts with its ISO date, so the year tab is known). */
+export const fetchEventBySlug = async (slug) => {
+    const year = parseInt(slug.slice(0, 4), 10);
+    if (isNaN(year)) return null;
+    const events = await fetchYear(year);
+    return events.find((e) => e.slug === slug) || null;
 };

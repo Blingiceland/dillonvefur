@@ -20,7 +20,7 @@ const Navbar = () => {
         }}>
 
             {/* Navigation Links */}
-            <div style={{
+            <div className="nav-links" style={{
                 display: 'flex',
                 gap: '40px',
                 flexWrap: 'wrap',
@@ -31,24 +31,21 @@ const Navbar = () => {
                 borderBottom: '1px solid #1a1a1a'
             }}>
                 <Link to="/" className="nav-link">Home</Link>
-                <span className="text-gold">•</span>
+                <span className="text-gold nav-dot" aria-hidden="true">•</span>
                 <Link to="/events" className="nav-link">What’s On</Link>
-                <span className="text-gold">•</span>
-                <a href="https://bce3rd-eu.myshopify.com/" target="_blank" rel="noopener noreferrer" className="nav-link">Merchandise</a>
-                <span className="text-gold">•</span>
-                <Link to="/bookdillon" className="nav-link">Book Dillon</Link>
-                <span className="text-gold">•</span>
+                <span className="text-gold nav-dot" aria-hidden="true">•</span>
                 <Link to="/whisky" className="nav-link">Whisky List</Link>
-                <span className="text-gold">•</span>
+                <span className="text-gold nav-dot" aria-hidden="true">•</span>
                 <Link to="/drinks" className="nav-link">Drinks Menu</Link>
+                <span className="text-gold nav-dot" aria-hidden="true">•</span>
+                <Link to="/bookdillon" className="nav-link">Book Dillon</Link>
             </div>
 
             {/* Logo Container - Larger - HIDDEN ON EVENTS PAGE */}
             {!isEventsPage && (
                 <div>
                     <Link to="/">
-                        <img src={logo} alt="Dillon Whiskey Bar" width="707" height="1000" fetchpriority="high" style={{
-                            height: 'min(500px, 55vh)',
+                        <img src={logo} alt="Dillon Whiskey Bar" width="707" height="1000" fetchpriority="high" className="nav-logo" style={{
                             width: 'auto',
                             filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.5))',
                             transition: 'transform 0.3s'
@@ -76,6 +73,13 @@ const Navbar = () => {
             color: #fff;
             border-bottom: 2px solid var(--color-gold);
             text-shadow: 0 0 10px rgba(200, 155, 60, 0.5);
+        }
+        .nav-logo { height: min(500px, 55vh); }
+        @media (max-width: 640px) {
+            .nav-links { gap: 14px 22px !important; padding: 10px 16px !important; margin-bottom: 16px !important; }
+            .nav-link { font-size: 15px; }
+            .nav-dot { display: none; }
+            .nav-logo { height: min(260px, 32vh); }
         }
       `}</style>
         </nav>

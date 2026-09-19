@@ -5,5 +5,8 @@
   "redirects": [
     { "source": "/whiskeys", "destination": "/whisky", "permanent": true },
     { "source": "/merch", "destination": "/", "permanent": true }
+  ],
+  "rewrites": [
+    { "source": "/events/:slug", "destination": "/api/event?slug=:slug" }
   ]
 }
