@@ -19,10 +19,21 @@ const describe = (e) => {
     return `${e.title} live at Dillon Whiskey Bar, Laugavegur 30, Reykjavík. ${bits.join(' · ')}.`;
 };
 
+// Only fetch the app shell from this project's own hosts. Never trust the Host header for
+// this: a spoofed host would let an attacker serve (and cache) foreign HTML under our URL.
+const ALLOWED_HOST = /^(www\.)?dillon\.is$|^dillon(-[a-z0-9]+)*\.vercel\.app$|^dillon(-[a-z0-9]+)*-jon-steinssons-projects\.vercel\.app$/;
+const SLUG_RE = /^\d{4}-\d{2}-\d{2}-[a-z0-9-]{0,60}$/;
+
+const shellOrigin = (host) => (ALLOWED_HOST.test(String(host || '').toLowerCase()) ? `https://${host.toLowerCase()}` : SITE_URL);
+
 export default async function handler(req, res) {
     const slug = String(req.query.slug || '');
+    if (!SLUG_RE.test(slug)) {
+        res.status(400).send('Invalid event id');
+        return;
+    }
     const year = parseInt(slug.slice(0, 4), 10);
-    const origin = `https://${req.headers.host}`;
+    const origin = shellOrigin(req.headers.host);
 
     const [shell, csv] = await Promise.all([
         fetch(`${origin}/`).then((r) => r.text()),
