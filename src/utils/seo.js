@@ -2,9 +2,9 @@ import { useEffect } from 'react';
 
 export const SITE_URL = 'https://www.dillon.is';
 export const SITE_NAME = 'Dillon Whiskey Bar';
-export const DEFAULT_TITLE = `${SITE_NAME} | Live Music & 250+ Whiskies in Reykjavík`;
+export const DEFAULT_TITLE = `${SITE_NAME} | Live Music & 170+ Whiskies in Reykjavík`;
 export const DEFAULT_DESCRIPTION =
-    'Dillon Whiskey Bar on Laugavegur 30, Reykjavík. Over 250 whiskies, live rock and blues, resident DJ Andrea and happy hour every day 12–19. Est. 1999.';
+    'Dillon Whiskey Bar on Laugavegur 30, Reykjavík. Over 170 whiskies, live rock and blues, resident DJ Andrea and happy hour every day 12–19. Est. 1999.';
 export const DEFAULT_IMAGE = `${SITE_URL}/og-image.jpg`;
 
 export const ADDRESS_TEXT = 'Laugavegur 30, 101 Reykjavík';

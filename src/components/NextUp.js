@@ -22,7 +22,7 @@ const NextUp = () => {
     return (
         <section className="nextup" aria-labelledby="nextup-heading">
             <h1 id="nextup-heading" className="nextup-tagline">
-                Live Music &amp; 250+ Whiskies in the Heart of Reykjavík
+                Live Music &amp; 170+ Whiskies in the Heart of Reykjavík
             </h1>
 
             <div className="nextup-grid">

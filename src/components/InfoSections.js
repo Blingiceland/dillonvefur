@@ -51,7 +51,7 @@ const InfoSections = () => {
                 imageLeft={false}
                 text={[
                     "Dillon is a place that keeps things simple. A bar where the music does the talking, the drinks are honest, and the atmosphere is shaped by the people who walk through the door. It doesn't try to be anything else — and never has.",
-                    "The bar itself is built around whiskey. Dillon carries over 250 different whiskies from around the world, poured straight or mixed with care. Alongside the bottles, you'll find a focused selection of whiskey cocktails — simple, balanced, and made to let the spirit speak for itself.",
+                    "The bar itself is built around whiskey. Dillon carries over 170 different whiskies from around the world, poured straight or mixed with care. Alongside the bottles, you'll find a focused selection of whiskey cocktails — simple, balanced, and made to let the spirit speak for itself.",
                     "Andrae Jóns is part of that foundation. She's not just a DJ — she's an Icelandic radio legend, with decades of experience behind the microphone. Her deep knowledge and instinct for the room shape the nights at Dillon with confidence and restraint. The music never takes over — it belongs there."
                 ]}
             />
@@ -70,10 +70,10 @@ const InfoSections = () => {
             <Section
                 title="Whisky"
                 image={whiskyImg}
-                imageAlt="The whisky shelf at Dillon with over 250 bottles"
+                imageAlt="The whisky shelf at Dillon with over 170 bottles"
                 imageLeft={false}
                 text={[
-                    "With more than 250 whiskies always on the shelf, Dillon is built for both curious newcomers and seasoned drinkers. Our bartenders are trained to help you find a whiskey that suits your taste — whether you know exactly what you're looking for or you're just starting out.",
+                    "With more than 170 whiskies always on the shelf, Dillon is built for both curious newcomers and seasoned drinkers. Our bartenders are trained to help you find a whiskey that suits your taste — whether you know exactly what you're looking for or you're just starting out.",
                     "We also host regular whiskey school sessions, held in English whenever needed. Ask at the bar or follow us on Instagram for upcoming dates."
                 ]}
             />

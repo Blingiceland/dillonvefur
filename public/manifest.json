@@ -1,7 +1,7 @@
 {
   "short_name": "Dillon",
   "name": "Dillon Whiskey Bar",
-  "description": "Live music, DJs & 250+ whiskies in the heart of Reykjavík.",
+  "description": "Live music, DJs & 170+ whiskies in the heart of Reykjavík.",
   "icons": [
     { "src": "favicon.ico", "sizes": "16x16 32x32 48x48 64x64", "type": "image/x-icon" },
     { "src": "logo192.png", "type": "image/png", "sizes": "192x192" },
