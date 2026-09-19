@@ -1,41 +1,49 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { fetchMenuData, groupBy } from '../utils/fetchMenu';
 
+// Vöruflokkur values from the Google Sheet, in menu order.
 const CATEGORY_ORDER = [
-    'Draft beers', 'Bottled Beer', 'Seltzers & Ciders',
-    'Cocktail', 'Coktails',
-    'Gin', 'Vodka', 'Tequila', 'Rum',
-    'Wine',
-    'Liquor', 'Shots',
-    'soft drink', 'mixer',
-    'Coffee',
-    'snack',
+    'Kranabjór', 'Flöskubjór', 'Bjór – tilboð', 'Síder',
+    'Blandaðir drykkir',
+    'Gin', 'Vodka', 'Romm',
+    'Vín',
+    'Líkjörar', 'Skot og bitter',
+    'Gos og vatn',
+    'Kaffi',
+    'Snarl',
 ];
 
 const CATEGORY_ICONS = {
-    'Draft beers': '🍺',
-    'Bottled Beer': '🍺',
-    'Seltzers & Ciders': '🥂',
-    'Cocktail': '🍹',
-    'Coktails': '🍹',
+    'Kranabjór': '🍺',
+    'Flöskubjór': '🍺',
+    'Bjór – tilboð': '🍻',
+    'Síder': '🍏',
+    'Blandaðir drykkir': '🍹',
     'Gin': '🌿',
     'Vodka': '🧊',
-    'Tequila': '🌵',
-    'Rum': '🏝️',
-    'Wine': '🍷',
-    'Liquor': '🥃',
-    'Shots': '🥃',
-    'soft drink': '🥤',
-    'mixer': '🧉',
-    'Coffee': '☕',
-    'snack': '🍟',
+    'Romm': '🏝️',
+    'Vín': '🍷',
+    'Líkjörar': '🥃',
+    'Skot og bitter': '🥃',
+    'Gos og vatn': '🥤',
+    'Kaffi': '☕',
+    'Snarl': '🍟',
 };
 
+// English labels for the Icelandic sheet categories (site copy is in English).
 const DISPLAY_NAMES = {
-    'soft drink': 'Soft Drinks',
-    'mixer': 'Mixers',
-    'snack': 'Snacks',
-    'Coktails': 'Cocktails',
+    'Kranabjór': 'Draft Beer',
+    'Flöskubjór': 'Bottled Beer',
+    'Bjór – tilboð': 'Beer Offers',
+    'Síder': 'Cider',
+    'Blandaðir drykkir': 'Cocktails',
+    'Romm': 'Rum',
+    'Vín': 'Wine',
+    'Líkjörar': 'Liqueurs',
+    'Skot og bitter': 'Shots & Bitters',
+    'Gos og vatn': 'Soft Drinks & Water',
+    'Kaffi': 'Coffee',
+    'Snarl': 'Snacks',
 };
 
 const DrinksMenu = () => {

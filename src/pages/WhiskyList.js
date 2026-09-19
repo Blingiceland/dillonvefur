@@ -1,14 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { fetchMenuData, groupBy } from '../utils/fetchMenu';
 
-const REGIONS = ['All', 'Scotland', 'USA', 'Ireland', 'International'];
-
-const REGION_COLORS = {
-    Scotland: '#c89b3c',
-    USA: '#c89b3c',
-    Ireland: '#c89b3c',
-    International: '#c89b3c',
-};
+// Preferred tab order; any other country found in the sheet is appended after these.
+const REGION_ORDER = ['Scotland', 'USA', 'Ireland', 'International'];
 
 const CATEGORY_ORDER = {
     // Scotland
@@ -20,7 +14,8 @@ const CATEGORY_ORDER = {
     'Single Malt': 20, 'Blended': 21, 'Green Spot': 22,
     // International
     'Japanese': 30, 'Mexican': 31, 'Canadian': 32, 'French': 33,
-    'Taiwan': 34, 'Finnish': 35, 'Welsh': 36, 'Faroe Island': 37,
+    'Taiwan': 34, 'Finland': 35, 'Finnish': 35, 'Welsh': 36,
+    'Faroe Island': 37, 'Spain': 38,
 };
 
 const WhiskyList = () => {
@@ -35,6 +30,13 @@ const WhiskyList = () => {
             setLoading(false);
         });
     }, []);
+
+    const regions = useMemo(() => {
+        const present = new Set(whiskies.map(w => w.country).filter(Boolean));
+        const ordered = REGION_ORDER.filter(r => present.has(r));
+        const extra = [...present].filter(r => !REGION_ORDER.includes(r)).sort();
+        return ['All', ...ordered, ...extra];
+    }, [whiskies]);
 
     const filtered = useMemo(() => {
         let items = whiskies;
@@ -109,7 +111,7 @@ const WhiskyList = () => {
 
                 {/* Region tabs */}
                 <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
-                    {REGIONS.map(region => (
+                    {regions.map(region => (
                         <button
                             key={region}
                             onClick={() => setActiveRegion(region)}
