@@ -9,6 +9,7 @@ import BookDillon from './pages/BookDillon';
 import WhiskyList from './pages/WhiskyList';
 import DrinksMenu from './pages/DrinksMenu';
 import NotFound from './pages/NotFound';
+import PlayAtDillon from './pages/PlayAtDillon';
 import Footer from './components/Footer';
 import './index.css';
 
@@ -31,6 +32,7 @@ function App() {
                         <Route path="/events" element={<WhatsOn />} />
                         <Route path="/events/:slug" element={<EventPage />} />
                         <Route path="/bookdillon" element={<BookDillon />} />
+                        <Route path="/play" element={<PlayAtDillon />} />
                         <Route path="/whisky" element={<WhiskyList />} />
                         <Route path="/drinks" element={<DrinksMenu />} />
                         <Route path="*" element={<NotFound />} />

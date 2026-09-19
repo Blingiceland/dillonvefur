@@ -88,3 +88,40 @@ describe('directImageUrl', () => {
         expect(directImageUrl('https://example.com/poster.jpg')).toBe('https://example.com/poster.jpg');
     });
 });
+
+describe('parseSheetDate', () => {
+    const { parseSheetDate } = require('./googleSheet');
+    test('returns ISO date when the weekday matches the year', () => {
+        expect(parseSheetDate('Thursday 19 March', 2026)).toBe('2026-03-19');
+        expect(parseSheetDate('  Sunday   22 march ', 2026)).toBe('2026-03-22');
+    });
+    test('returns null for mismatching weekday, bad month or blank', () => {
+        expect(parseSheetDate('Thursday 1 January', 2027)).toBeNull();
+        expect(parseSheetDate('Friday 1 Foo', 2026)).toBeNull();
+        expect(parseSheetDate('', 2026)).toBeNull();
+        expect(parseSheetDate('Band', 2026)).toBeNull();
+    });
+});
+
+describe('analyzeSheet', () => {
+    const { analyzeSheet } = require('./googleSheet');
+    const HEADER2 = '"","Start time","Band","Contact ","Hver Bókar","Genre ","Private","Viskískóli "';
+    const rows = [
+        '"Thursday 1 January","","","","","","",""',
+        '"Friday 2 January","","Uppreisn","","","","",""',
+        '"Saturday 3 January","","Private Party","","","","Private",""',
+        '"Wednesday 7 January","","\n","","","","",""',
+        '"Thursday 8 January","","Some Band CANCELLED","","","","",""',
+        '"Friday 1 January","","Spill over","","","","",""',
+    ];
+    test('marks dates with a band as taken, including private, excluding cancelled and whitespace-only', () => {
+        const r = analyzeSheet([HEADER2, ...rows].join('\n'), 2026);
+        expect(r.exists).toBe(true);
+        expect(r.taken).toEqual(['2026-01-02', '2026-01-03']);
+    });
+    test('reports a missing tab when Google returns another year (weekdays do not match)', () => {
+        const r = analyzeSheet([HEADER2, ...rows].join('\n'), 2027);
+        expect(r.exists).toBe(false);
+        expect(r.taken).toEqual([]);
+    });
+});

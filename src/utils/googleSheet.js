@@ -88,6 +88,47 @@ const isCancelled = (title) => /cancell?ed/i.test(title);
 const isPrivate = (row) =>
     !!cell(row, COL.isPrivate) || /\bprivate\b/i.test(cell(row, COL.title));
 
+/**
+ * "Thursday 19 March" + year -> "2026-03-19", or null when the text is not a date
+ * or its weekday does not match that year (which is how a wrong year tab is detected).
+ */
+export const parseSheetDate = (text, year) => {
+    const parts = String(text || '').trim().split(/\s+/);
+    if (parts.length < 3) return null;
+    const [dayName, dayStr, monthName] = parts;
+    const dayNum = parseInt(dayStr, 10);
+    const month = MONTH_MAP[monthName.toLowerCase()];
+    if (isNaN(dayNum) || month === undefined) return null;
+    const d = new Date(Date.UTC(year, month, dayNum));
+    if (d.getUTCMonth() !== month || WEEKDAYS[d.getUTCDay()] !== dayName.toLowerCase()) return null;
+    return `${year}-${pad(month + 1)}-${pad(dayNum)}`;
+};
+
+/**
+ * Availability view of one year tab: which dates already have something on (any band,
+ * private events included, cancelled rows excluded) and whether the tab really is that year.
+ * Google returns the first tab when the requested one does not exist; then the weekday
+ * names do not match `year` and `exists` is false.
+ */
+export const analyzeSheet = (text, year) => {
+    const rows = parseCSV(text);
+    const taken = new Set();
+    let matched = 0;
+    let mismatched = 0;
+    for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        const dateText = cell(row, COL.date);
+        if (!dateText) continue;
+        const iso = parseSheetDate(dateText, year);
+        if (!iso) { mismatched++; continue; }
+        matched++;
+        const title = cell(row, COL.title);
+        if (title && !isCancelled(title)) taken.add(iso);
+    }
+    const exists = matched > 0 && matched >= mismatched;
+    return { exists, taken: exists ? [...taken].sort() : [] };
+};
+
 const findOptionalColumns = (header) => {
     const found = {};
     Object.entries(OPTIONAL_HEADERS).forEach(([key, re]) => {
