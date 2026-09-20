@@ -245,7 +245,7 @@ const ApplyForm = ({ dates, availability, onSubmitted, edit = null }) => {
                     <div style={{ border: '1px solid #2a2a2a', padding: '16px', color: '#bbb', fontSize: '14px', lineHeight: 1.6 }}>
                         <p style={{ margin: '0 0 10px', color: '#c89b3c', letterSpacing: '2px', fontSize: '12px', textTransform: 'uppercase' }}>How it works</p>
                         <ul style={{ margin: 0, paddingLeft: '18px' }}>
-                            <li>We listen to every application and reply by email, usually within a week or two.</li>
+                            <li>We listen to every application and reply by email, usually within 2–3 days.</li>
                             <li>A booking fee of 10.000 kr. is paid by card when you send the application. It is refunded in full right after your show, or immediately if we cannot fit you in. Unpaid applications are not reviewed.</li>
                             <li>If we say yes, the event goes on dillon.is and our social media using the text and photos you send here.</li>
                             <li>Dillon may decline an application without giving a reason.</li>

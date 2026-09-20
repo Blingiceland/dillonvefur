@@ -79,7 +79,7 @@ export const notifyBandReceived = (app) =>
             '',
             datesText(app),
             '',
-            'We listen to everything that comes in and usually reply within a week or two.',
+            'We listen to everything that comes in and usually reply within 2–3 days, 3 at the most.',
             'If your dates change in the meantime, just reply to this email.',
             '',
             'Dillon Whiskey Bar',

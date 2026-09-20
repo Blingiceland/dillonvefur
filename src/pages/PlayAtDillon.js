@@ -66,7 +66,7 @@ const PlayAtDillon = () => {
                     <h1 style={{ fontFamily: 'var(--font-heading)', color: '#f0e6cc', fontSize: 'clamp(32px, 6vw, 48px)', letterSpacing: '3px', textTransform: 'uppercase', margin: '0 0 16px' }}>Thanks, we’ll be in touch</h1>
                     <p style={{ color: '#ccc', fontSize: '17px', lineHeight: 1.7 }}>
                         Your reference is <strong style={{ color: '#c89b3c', letterSpacing: '2px' }}>{done.ref}</strong>.
-                        {done.updated ? ' We have the updated details and will get back to you soon.' : ' A confirmation is on its way to your inbox. We listen to everything and usually reply within a week or two.'}
+                        {done.updated ? ' We have the updated details and will get back to you soon.' : ' A confirmation is on its way to your inbox. We listen to everything and usually reply within 2–3 days, 3 at the most.'}
                     </p>
                     <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '28px' }}>
                         <Link to="/events" className="btn btn-primary">See What’s On</Link>

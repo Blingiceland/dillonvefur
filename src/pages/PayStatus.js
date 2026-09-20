@@ -79,7 +79,7 @@ const PayStatus = () => {
                 <p style={{ color: '#ccc', fontSize: '17px', lineHeight: 1.7 }}>
                     Your reference is <strong style={{ color: '#c89b3c', letterSpacing: '2px' }}>{state.ref}</strong>.
                     {state.fee_status === 'paid' ? ` The booking fee of ${kr(state.fee_amount_isk)} is received and is refunded right after your show, or immediately if we cannot fit you in.` : ''}
-                    {' '}A confirmation is on its way to your inbox. We listen to everything and usually reply within a week or two.
+                    {' '}A confirmation is on its way to your inbox. We listen to everything and usually reply within 2–3 days, 3 at the most.
                 </p>
                 <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '28px' }}>
                     <Link to="/events" className="btn btn-primary">See What’s On</Link>
