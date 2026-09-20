@@ -11,12 +11,16 @@ const Box = ({ children }) => (
 );
 
 /**
- * Magic-link gate for the owner. Renders children({ session }) once signed in as ADMIN_EMAIL.
+ * Sign-in gate for the owner: email + password, with an emailed sign-in link as fallback.
+ * Renders children({ session }) once signed in as ADMIN_EMAIL.
  */
 const AdminGate = ({ children }) => {
     const [session, setSession] = useState(undefined); // undefined = checking
-    const [email, setEmail] = useState('');
+    const [email, setEmail] = useState(ADMIN_EMAIL);
+    const [password, setPassword] = useState('');
+    const [mode, setMode] = useState('password'); // 'password' | 'link'
     const [sent, setSent] = useState(false);
+    const [busy, setBusy] = useState(false);
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -34,15 +38,25 @@ const AdminGate = ({ children }) => {
         return () => sub.subscription.unsubscribe();
     }, []);
 
-    const sendLink = async (e) => {
+    const signIn = async (e) => {
         e.preventDefault();
         setError(null);
-        const { error: err } = await supabase.auth.signInWithOtp({
-            email: email.trim(),
-            options: { emailRedirectTo: `${window.location.origin}/admin`, shouldCreateUser: false },
-        });
-        if (err) setError(err.message);
-        else setSent(true);
+        setBusy(true);
+        try {
+            if (mode === 'password') {
+                const { error: err } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+                if (err) setError(err.message === 'Invalid login credentials' ? 'Wrong email or password.' : err.message);
+            } else {
+                const { error: err } = await supabase.auth.signInWithOtp({
+                    email: email.trim(),
+                    options: { emailRedirectTo: `${window.location.origin}/admin`, shouldCreateUser: false },
+                });
+                if (err) setError(err.message);
+                else setSent(true);
+            }
+        } finally {
+            setBusy(false);
+        }
     };
 
     if (!supabase) return <Box><p style={errorStyle}>Admin is not configured (missing Supabase keys).</p></Box>;
@@ -65,14 +79,28 @@ const AdminGate = ({ children }) => {
                 {sent ? (
                     <p style={{ color: '#ccc', lineHeight: 1.6 }}>Check your inbox. The sign-in link works once and expires in an hour.</p>
                 ) : (
-                    <form onSubmit={sendLink} style={{ display: 'grid', gap: '14px' }}>
+                    <form onSubmit={signIn} style={{ display: 'grid', gap: '14px' }}>
                         <div>
                             <label htmlFor="admin-email" style={labelStyle}>Email</label>
-                            <input id="admin-email" type="email" required autoComplete="email" spellCheck="false" value={email} onChange={(e) => setEmail(e.target.value)} style={field} />
-                            <p style={hintStyle}>We email you a sign-in link. No password.</p>
+                            <input id="admin-email" type="email" required autoComplete="username" spellCheck="false" value={email} onChange={(e) => setEmail(e.target.value)} style={field} />
                         </div>
+                        {mode === 'password' && (
+                            <div>
+                                <label htmlFor="admin-password" style={labelStyle}>Password</label>
+                                <input id="admin-password" type="password" required autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} style={field} />
+                            </div>
+                        )}
                         {error && <p style={errorStyle}>{error}</p>}
-                        <button type="submit" className="btn btn-primary">Send Sign-in Link</button>
+                        <button type="submit" className="btn btn-primary" disabled={busy}>
+                            {busy ? 'Signing in…' : mode === 'password' ? 'Sign In' : 'Email Me a Sign-in Link'}
+                        </button>
+                        <p style={hintStyle}>
+                            {mode === 'password' ? (
+                                <>Forgot the password? <button type="button" onClick={() => { setMode('link'); setError(null); }} style={{ background: 'none', border: 'none', color: '#c89b3c', cursor: 'pointer', padding: 0, font: 'inherit' }}>Email me a sign-in link</button></>
+                            ) : (
+                                <button type="button" onClick={() => { setMode('password'); setError(null); }} style={{ background: 'none', border: 'none', color: '#c89b3c', cursor: 'pointer', padding: 0, font: 'inherit' }}>Use a password instead</button>
+                            )}
+                        </p>
                     </form>
                 )}
             </Box>
