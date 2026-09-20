@@ -38,6 +38,19 @@ const AdminGate = ({ children }) => {
         return () => sub.subscription.unsubscribe();
     }, []);
 
+    const signInWithGoogle = async () => {
+        setError(null);
+        setBusy(true);
+        const { error: err } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: `${window.location.origin}/admin`,
+                queryParams: { hd: 'dillon.is', prompt: 'select_account' },
+            },
+        });
+        if (err) { setError(err.message); setBusy(false); }
+    };
+
     const signIn = async (e) => {
         e.preventDefault();
         setError(null);
@@ -76,6 +89,10 @@ const AdminGate = ({ children }) => {
             <Box>
                 <p style={{ color: '#c89b3c', letterSpacing: '4px', fontSize: '12px', textTransform: 'uppercase', margin: '0 0 8px' }}>Dillon staff</p>
                 <h1 style={{ fontFamily: 'var(--font-heading)', color: '#f0e6cc', fontSize: '32px', letterSpacing: '2px', textTransform: 'uppercase', margin: '0 0 20px' }}>Sign in</h1>
+                <button type="button" className="btn btn-primary" onClick={signInWithGoogle} disabled={busy} style={{ width: '100%', marginBottom: '18px' }}>
+                    Sign in with Google
+                </button>
+                <p style={{ ...hintStyle, textAlign: 'center', margin: '0 0 18px' }}>Use the dillon@dillon.is Google account. Or, if you need to:</p>
                 {sent ? (
                     <p style={{ color: '#ccc', lineHeight: 1.6 }}>Check your inbox. The sign-in link works once and expires in an hour.</p>
                 ) : (
