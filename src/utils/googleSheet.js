@@ -7,8 +7,8 @@ const SHEET_ID = '1LzwjwuFwCaNowXFavQuGjPYPqQV7iweFftqABDu9DNs';
 export const sheetUrl = (year) =>
     `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${year}`;
 
-const COL = { date: 0, time: 1, title: 2, genre: 5, isPrivate: 6 };
-const OPTIONAL_HEADERS = {
+export const COL = { date: 0, time: 1, title: 2, contact: 3, bookedBy: 4, genre: 5, isPrivate: 6, whiskySchool: 7 };
+export const OPTIONAL_HEADERS = {
     poster: /^(poster|plakat|mynd|image)/i,
     tickets: /^(tickets?|miðar|miðasala|ticket url)/i,
     entry: /^(entry|aðgang|verð|price|cover)/i,

@@ -4,6 +4,9 @@ import { supabaseAdmin } from '../../server/supabase.mjs';
 import { requireAdmin } from '../../server/auth.mjs';
 import { ACTIONS, canTransition, notifyBandApproved, notifyBandRejected, notifyBandCancelled, notifyBandRefunded } from '../../server/decisions.mjs';
 import { slugify } from '../../src/utils/googleSheet.js';
+import { entryText } from '../../src/utils/sheetRows.js';
+import { writeEventRow, cancelEventRow } from '../../server/sheets.mjs';
+import { publicMediaUrl } from '../../server/supabase.mjs';
 
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 
@@ -35,8 +38,18 @@ export default async function handler(req, res) {
                 if (!TIME_RE.test(time)) { res.status(400).json({ error: 'Start time must look like 21:00' }); return; }
                 const { data: clash } = await db.from('applications').select('ref').eq('status', 'approved').eq('confirmed_date', date).neq('id', id).limit(1);
                 if (clash && clash.length) { res.status(409).json({ error: `${date} is already taken by ${clash[0].ref}` }); return; }
-                // Phase 4 writes the row into the Google Sheet here, before the DB update.
-                patch = { status: 'approved', confirmed_date: date, start_time: time, decision_message: message || null, decided_at: now, event_slug: `${date}-${slugify(app.band_name)}`, last_error: null };
+                // Sheet first: if this throws (DATE_TAKEN, SHEET_TAB_MISSING, auth) the application stays "submitted".
+                const written = await writeEventRow({
+                    isoDate: date,
+                    time,
+                    band: app.band_name,
+                    contact: `${app.contact_name} – ${app.contact_email} – ${app.contact_phone}`,
+                    genre: app.genre,
+                    posterUrl: publicMediaUrl(app.poster_path || app.press_photo_path),
+                    ticketUrl: app.ticket_url || '',
+                    entry: entryText(app),
+                });
+                patch = { status: 'approved', confirmed_date: date, start_time: time, decision_message: message || null, decided_at: now, event_slug: `${date}-${slugify(app.band_name)}`, sheet_tab: written.tab, sheet_row: written.rowNumber, last_error: null };
                 email = (a) => notifyBandApproved(a, message);
                 break;
             }
@@ -48,10 +61,12 @@ export default async function handler(req, res) {
                 patch = { status: 'played', played_at: now };
                 break;
             case 'cancel':
+                await cancelEventRow({ isoDate: app.confirmed_date, band: app.band_name });
                 patch = { status: 'cancelled', decision_message: message || null };
                 email = (a) => notifyBandCancelled(a, message);
                 break;
             case 'withdraw':
+                if (app.status === 'approved') await cancelEventRow({ isoDate: app.confirmed_date, band: app.band_name });
                 patch = { status: 'withdrawn', decision_message: message || null };
                 break;
             case 'mark_refunded':
