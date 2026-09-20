@@ -36,6 +36,7 @@ function App() {
                         <Route path="/events/:slug" element={<EventPage />} />
                         <Route path="/bookdillon" element={<BookDillon />} />
                         <Route path="/play" element={<PlayAtDillon />} />
+                        <Route path="/play/edit/:token" element={<PlayAtDillon />} />
                         <Route path="/admin" element={<AdminGate>{({ session }) => <AdminList session={session} />}</AdminGate>} />
                         <Route path="/admin/:id" element={<AdminGate>{({ session }) => <AdminDetail session={session} />}</AdminGate>} />
                         <Route path="/whisky" element={<WhiskyList />} />

@@ -2,7 +2,8 @@
 // { id, action, message?, confirmedDate?, startTime?, ticketUrl?, entry?, note? }
 import { supabaseAdmin } from '../../server/supabase.mjs';
 import { requireAdmin } from '../../server/auth.mjs';
-import { ACTIONS, canTransition, notifyBandApproved, notifyBandRejected, notifyBandCancelled, notifyBandRefunded } from '../../server/decisions.mjs';
+import { randomBytes } from 'node:crypto';
+import { ACTIONS, canTransition, notifyBandApproved, notifyBandRejected, notifyBandChangesRequested, notifyBandCancelled, notifyBandRefunded } from '../../server/decisions.mjs';
 import { slugify } from '../../src/utils/googleSheet.js';
 import { entryText } from '../../src/utils/sheetRows.js';
 import { writeEventRow, cancelEventRow } from '../../server/sheets.mjs';
@@ -56,6 +57,11 @@ export default async function handler(req, res) {
             case 'reject':
                 patch = { status: 'rejected', decision_message: message || null, decided_at: now };
                 email = (a) => notifyBandRejected(a, message);
+                break;
+            case 'request_changes':
+                if (!String(message || '').trim()) { res.status(400).json({ error: 'Tell the band what needs to change' }); return; }
+                patch = { status: 'changes_requested', decision_message: message.trim(), edit_token: app.edit_token || randomBytes(24).toString('hex') };
+                email = (a) => notifyBandChangesRequested(a, message);
                 break;
             case 'played':
                 patch = { status: 'played', played_at: now };

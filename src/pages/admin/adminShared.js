@@ -3,6 +3,7 @@ import { supabase } from '../../utils/supabaseClient';
 export const STATUS_LABEL = {
     pending_payment: 'Awaiting fee',
     submitted: 'New',
+    changes_requested: 'Waiting on band',
     approved: 'Approved',
     rejected: 'Rejected',
     played: 'Played',
@@ -13,6 +14,7 @@ export const STATUS_LABEL = {
 export const STATUS_COLOR = {
     pending_payment: '#888',
     submitted: '#c89b3c',
+    changes_requested: '#e0a44b',
     approved: '#7bc07b',
     rejected: '#b04a4a',
     played: '#8aa8d8',

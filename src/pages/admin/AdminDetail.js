@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { usePageMeta } from '../../utils/seo';
 import { embedFor } from '../../utils/embeds';
+import { START_TIMES } from '../../utils/applicationRules';
 import { field, labelStyle, errorStyle, hintStyle } from '../../components/formStyles';
 import { loadApplication, loadLog, adminAction, STATUS_LABEL, STATUS_COLOR, FEE_LABEL, AUDIENCE_LABEL, prettyDate, mediaUrl } from './adminShared';
 
@@ -96,6 +97,7 @@ const AdminDetail = ({ session }) => {
                         <Row k="Tickets" v={app.ticket_url} href={app.ticket_url} />
                         <Row k="Audience" v={AUDIENCE_LABEL[app.audience_estimate]} />
                         <Row k="Line-up" v={app.line_up} />
+                        <Row k="Sound eng." v={app.needs_sound_engineer === 'yes' ? 'Yes, needs one from us' : app.needs_sound_engineer === 'no' ? 'No, brings their own' : ''} />
                         <Row k="Tech" v={app.tech_needs} />
                     </section>
 
@@ -139,8 +141,11 @@ const AdminDetail = ({ session }) => {
                 <p style={labelStyle}>Decision</p>
                 {error && <p style={errorStyle}>{error}</p>}
 
-                {app.status === 'submitted' && (
+                {(app.status === 'submitted' || app.status === 'changes_requested') && (
                     <div style={{ display: 'grid', gap: '16px' }}>
+                        {app.status === 'changes_requested' && (
+                            <p style={{ ...hintStyle, color: '#e0a44b', margin: 0 }}>Waiting on the band. You asked: “{app.decision_message}”. They have a personal link to update and resend.</p>
+                        )}
                         <div style={{ display: 'grid', gap: '16px', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
                             <div>
                                 <label htmlFor="confirm-date" style={labelStyle}>Date</label>
@@ -150,19 +155,22 @@ const AdminDetail = ({ session }) => {
                             </div>
                             <div>
                                 <label htmlFor="confirm-time" style={labelStyle}>Start time</label>
-                                <input id="confirm-time" type="time" value={time} onChange={(e) => setTime(e.target.value)} style={field} />
+                                <select id="confirm-time" value={time} onChange={(e) => setTime(e.target.value)} style={{ ...field, backgroundColor: '#111' }}>
+                                    {[...new Set([time, ...START_TIMES])].filter(Boolean).map((t) => <option key={t} value={t}>{t}</option>)}
+                                </select>
                             </div>
                         </div>
                         <div>
                             <label htmlFor="decision-message" style={labelStyle}>Message to the band</label>
-                            <textarea id="decision-message" rows="3" value={message} onChange={(e) => setMessage(e.target.value)} style={{ ...field, resize: 'vertical' }} placeholder="Optional. Goes into the email." />
+                            <textarea id="decision-message" rows="3" value={message} onChange={(e) => setMessage(e.target.value)} style={{ ...field, resize: 'vertical' }} placeholder="Optional for approve/reject. Required for “Request changes”: say exactly what to fix." />
                         </div>
                         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                             {btn(busy ? 'Working…' : 'Approve & Schedule', 'approve', 'btn-primary', { confirmedDate: date, startTime: time })}
+                            {btn('Request changes', 'request_changes')}
                             {btn('Reject', 'reject')}
                             {btn('Withdrawn by band', 'withdraw')}
                         </div>
-                        <p style={hintStyle}>Approve emails the band and puts the show on the schedule. Reject emails the band with your message.</p>
+                        <p style={hintStyle}>Approve emails the band and puts the show on the schedule. Request changes emails your message with a personal link where the band fixes and resends. Reject emails the band with your message.</p>
                     </div>
                 )}
 

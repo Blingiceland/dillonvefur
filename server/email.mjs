@@ -33,27 +33,38 @@ const listenText = (app) =>
     [['Spotify', app.spotify_url], ['YouTube', app.youtube_url], ['SoundCloud', app.soundcloud_url], ['Bandcamp', app.bandcamp_url]]
         .filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`).join('\n');
 
+const summary = (app) => [
+    datesText(app),
+    '',
+    `Genre: ${app.genre}`,
+    `Start: ${app.suggested_start_time}`,
+    `Entry: ${app.entry_type === 'free' ? 'Free' : `${app.ticket_price_isk} kr.`}`,
+    `Expected audience: ${app.audience_estimate.replace('_', '–').replace('under', 'under ').replace('over', 'over ')}`,
+    `Sound engineer needed: ${app.needs_sound_engineer === 'yes' ? 'Yes' : 'No'}`,
+    `Technical needs: ${app.tech_needs || '-'}`,
+    '',
+    listenText(app),
+    '',
+    `Contact: ${app.contact_name} · ${app.contact_email} · ${app.contact_phone}`,
+    '',
+    `Review it here: ${SITE_URL()}/admin/${app.id}`,
+    `Reference: ${app.ref}`,
+];
+
 export const notifyAdminNewApplication = (app) =>
     sendEmail({
         to: ADMIN_EMAIL(),
         replyTo: app.contact_email,
         subject: `New gig application: ${app.band_name} (${pretty(app.preferred_date)})`,
-        text: [
-            `${app.band_name} wants to play at Dillon.`,
-            '',
-            datesText(app),
-            '',
-            `Genre: ${app.genre}`,
-            `Entry: ${app.entry_type === 'free' ? 'Free' : `${app.ticket_price_isk} kr.`}`,
-            `Expected audience: ${app.audience_estimate.replace('_', '–').replace('under', 'under ').replace('over', 'over ')}`,
-            '',
-            listenText(app),
-            '',
-            `Contact: ${app.contact_name} · ${app.contact_email} · ${app.contact_phone}`,
-            '',
-            `Review it here: ${SITE_URL()}/admin/${app.id}`,
-            `Reference: ${app.ref}`,
-        ].join('\n'),
+        text: [`${app.band_name} wants to play at Dillon.`, '', ...summary(app)].join('\n'),
+    });
+
+export const notifyAdminUpdatedApplication = (app) =>
+    sendEmail({
+        to: ADMIN_EMAIL(),
+        replyTo: app.contact_email,
+        subject: `Updated application: ${app.band_name} (${app.ref})`,
+        text: [`${app.band_name} sent an updated application after your request for changes.`, '', ...summary(app)].join('\n'),
     });
 
 export const notifyBandReceived = (app) =>

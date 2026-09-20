@@ -6,7 +6,7 @@ import { fetchAvailability } from '../../components/apply/AvailabilityCalendar';
 import { loadApplications, STATUS_LABEL, STATUS_COLOR, FEE_LABEL, prettyDate } from './adminShared';
 
 const TABS = [
-    { key: 'new', label: 'New', statuses: ['submitted', 'pending_payment'] },
+    { key: 'new', label: 'New', statuses: ['submitted', 'changes_requested', 'pending_payment'] },
     { key: 'approved', label: 'Approved', statuses: ['approved'] },
     { key: 'past', label: 'Past', statuses: ['played', 'cancelled', 'withdrawn'] },
     { key: 'rejected', label: 'Rejected', statuses: ['rejected'] },
@@ -71,6 +71,7 @@ const AdminList = ({ session }) => {
                                     {a.status === 'approved' || a.status === 'played' ? prettyDate(a.confirmed_date) : prettyDate(a.preferred_date)}
                                     {a.status === 'submitted' && (a.alt_date_1 || a.alt_date_2) && <span style={{ color: '#777' }}> · alt {[a.alt_date_1, a.alt_date_2].filter(Boolean).map(prettyDate).join(', ')}</span>}
                                     {a.status === 'submitted' && clash && <span style={{ color: '#e0a44b', marginLeft: '10px' }}>⚠ date conflict</span>}
+                                    {a.status === 'changes_requested' && <span style={{ color: '#e0a44b', marginLeft: '10px' }}>waiting on band</span>}
                                 </span>
                             </span>
                             <span style={{ textAlign: 'right', fontSize: '12px', color: '#888', letterSpacing: '1px' }}>

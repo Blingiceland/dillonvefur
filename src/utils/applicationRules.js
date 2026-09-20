@@ -1,5 +1,5 @@
 // Validation for band applications. Runs in the browser (per step, friendly messages)
-// and again in /api/apply (the one that counts). No dependencies, no DOM.
+// and again in /api/apply and /api/apply/edit (the ones that count). No dependencies, no DOM.
 import { isInWindow } from './bookingRules.js'; // extension needed: also imported by Node (api/)
 
 export const BIO_MIN = 150;
@@ -14,6 +14,12 @@ export const AUDIENCE_OPTIONS = [
     { value: '60_100', label: '60–100 people' },
     { value: 'over_100', label: 'Over 100 people' },
 ];
+
+/** 24-hour start times offered in the form and in admin (17:00 to 23:30). */
+export const START_TIMES = Array.from({ length: 14 }, (_, i) => {
+    const h = 17 + Math.floor(i / 2);
+    return `${String(h).padStart(2, '0')}:${i % 2 ? '30' : '00'}`;
+});
 
 export const LISTEN_LINKS = ['spotify', 'youtube', 'soundcloud', 'bandcamp'];
 export const SOCIAL_LINKS = ['instagram', 'facebook', 'website'];
@@ -49,7 +55,8 @@ const str = (v) => String(v ?? '').trim();
 const nullable = (v) => (str(v) ? str(v) : null);
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
-const STORAGE_PATH_RE = /^incoming\/[a-f0-9-]{36}\.(jpg|jpeg|png|webp)$/;
+const INCOMING_RE = /^incoming\/[a-f0-9-]{36}\.(jpg|jpeg|png|webp)$/;
+const existingRe = (id) => new RegExp(`^applications/${id}/(press-photo|poster)\\.(jpg|jpeg|png|webp)$`);
 
 export const makeRef = (uuid) => `DLN-${uuid.replace(/-/g, '').slice(0, 6).toUpperCase()}`;
 
@@ -57,11 +64,14 @@ export const makeRef = (uuid) => `DLN-${uuid.replace(/-/g, '').slice(0, 6).toUpp
  * Validate and normalise a raw application (all strings, as posted by the form).
  * @param {object} input
  * @param {{from:string,to:string,taken:string[],yearsOpen:number[]}} availability
+ * @param {{existingId?: string, ownDates?: string[]}} [options] - when editing: images already stored
+ *        under applications/<existingId>/ are accepted, and the band's own dates do not count as taken
  * @returns {{errors: Record<string,string>, clean: object}}
  */
-export const validateApplication = (input, availability) => {
+export const validateApplication = (input, availability, options = {}) => {
     const errors = {};
     const i = input || {};
+    const own = new Set(options.ownDates || []);
 
     // dates
     const dates = Array.isArray(i.dates) ? i.dates.map(str).filter(Boolean) : [];
@@ -74,7 +84,7 @@ export const validateApplication = (input, availability) => {
         for (const d of dates) {
             if (!isInWindow(d, availability)) { errors.dates = `${d} is outside the booking window`; break; }
             if (!yearsOpen.has(Number(d.slice(0, 4)))) { errors.dates = `The ${d.slice(0, 4)} schedule is not open yet`; break; }
-            if (taken.has(d)) { errors.dates = `${d} is already booked, please pick another date`; break; }
+            if (taken.has(d) && !own.has(d)) { errors.dates = `${d} is already booked, please pick another date`; break; }
         }
     }
 
@@ -111,16 +121,20 @@ export const validateApplication = (input, availability) => {
     const ticketErr = validateLink('website', i.ticket_url);
     if (ticketErr) errors.ticket_url = ticketErr;
     const suggested_start_time = str(i.suggested_start_time) || '21:00';
-    if (!TIME_RE.test(suggested_start_time)) errors.suggested_start_time = 'Use a time like 21:00';
+    if (!TIME_RE.test(suggested_start_time)) errors.suggested_start_time = 'Pick a start time';
+    const needs_sound_engineer = i.needs_sound_engineer === 'yes' ? 'yes' : i.needs_sound_engineer === 'no' ? 'no' : null;
+    if (!needs_sound_engineer) errors.needs_sound_engineer = 'Do you need a sound engineer from us?';
+    if (!str(i.tech_needs)) errors.tech_needs = 'Tell us what you need on stage, or write "nothing special"';
 
     // contact
     if (!str(i.contact_name)) errors.contact_name = 'Contact name is required';
     if (!EMAIL_RE.test(str(i.contact_email))) errors.contact_email = 'Enter a valid email address';
     if (str(i.contact_phone).replace(/\D/g, '').length < 7) errors.contact_phone = 'Enter a phone number we can reach you on';
 
-    // media
-    if (!STORAGE_PATH_RE.test(str(i.press_photo_path))) errors.press_photo_path = 'Upload a press photo of the band';
-    if (str(i.poster_path) && !STORAGE_PATH_RE.test(str(i.poster_path))) errors.poster_path = 'Poster upload failed, try again';
+    // media: fresh uploads live under incoming/, kept images under applications/<id>/
+    const pathOk = (p) => INCOMING_RE.test(p) || (options.existingId && existingRe(options.existingId).test(p));
+    if (!pathOk(str(i.press_photo_path))) errors.press_photo_path = 'Upload a press photo of the band';
+    if (str(i.poster_path) && !pathOk(str(i.poster_path))) errors.poster_path = 'Poster upload failed, try again';
 
     if (i.agreed !== true) errors.agreed = 'Please agree to the terms';
 
@@ -134,7 +148,8 @@ export const validateApplication = (input, availability) => {
         bio,
         previous_gigs: nullable(i.previous_gigs),
         line_up: str(i.line_up),
-        tech_needs: nullable(i.tech_needs),
+        tech_needs: str(i.tech_needs),
+        needs_sound_engineer,
         audience_estimate: i.audience_estimate,
         ...links,
         entry_type,
@@ -155,7 +170,15 @@ export const validateApplication = (input, availability) => {
 export const STEP_FIELDS = {
     dates: ['dates'],
     band: ['band_name', 'genre', 'bio', 'line_up', 'audience_estimate', 'listen', 'spotify_url', 'youtube_url', 'soundcloud_url', 'bandcamp_url', 'instagram_url', 'facebook_url', 'website_url'],
-    show: ['entry_type', 'ticket_price_isk', 'ticket_url', 'suggested_start_time'],
+    show: ['entry_type', 'ticket_price_isk', 'ticket_url', 'suggested_start_time', 'needs_sound_engineer', 'tech_needs'],
     media: ['press_photo_path', 'poster_path'],
     contact: ['contact_name', 'contact_email', 'contact_phone', 'agreed'],
 };
+
+/** Columns a band may see and edit about its own application (never admin fields). */
+export const EDITABLE_FIELDS = [
+    'band_name', 'genre', 'based_in', 'bio', 'previous_gigs', 'line_up', 'tech_needs', 'needs_sound_engineer', 'audience_estimate',
+    'spotify_url', 'youtube_url', 'soundcloud_url', 'bandcamp_url', 'instagram_url', 'facebook_url', 'website_url',
+    'entry_type', 'ticket_price_isk', 'ticket_url', 'suggested_start_time',
+    'contact_name', 'contact_email', 'contact_phone', 'press_photo_path', 'poster_path',
+];

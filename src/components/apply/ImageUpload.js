@@ -9,13 +9,13 @@ const MAX_BYTES = 8 * 1024 * 1024;
  * Picks an image, asks the API for a signed upload slot, uploads straight to Supabase Storage
  * and reports the storage path back through onChange(path | '').
  */
-const ImageUpload = ({ kind, label, hint, required, value, onChange, error }) => {
+const ImageUpload = ({ kind, label, hint, required, value, onChange, error, existingUrl = null }) => {
     const inputRef = useRef(null);
-    const [preview, setPreview] = useState(null);
+    const [preview, setPreview] = useState(existingUrl);
     const [busy, setBusy] = useState(false);
     const [localError, setLocalError] = useState(null);
 
-    useEffect(() => () => { if (preview) URL.revokeObjectURL(preview); }, [preview]);
+    useEffect(() => () => { if (preview && preview.startsWith('blob:')) URL.revokeObjectURL(preview); }, [preview]);
 
     const pick = async (file) => {
         setLocalError(null);
@@ -73,7 +73,7 @@ const ImageUpload = ({ kind, label, hint, required, value, onChange, error }) =>
                         disabled={busy}
                         style={{ color: '#ccc', fontSize: '14px' }}
                     />
-                    <p style={hintStyle}>{busy ? 'Uploading…' : value ? 'Uploaded' : hint}</p>
+                    <p style={hintStyle}>{busy ? 'Uploading…' : value ? (value.startsWith('incoming/') ? 'Uploaded' : 'Current photo kept. Choose a file to replace it.') : hint}</p>
                 </div>
                 {value && !busy && (
                     <button type="button" onClick={clear} className="btn btn-outline" style={{ padding: '8px 14px', fontSize: '12px' }}>Remove</button>

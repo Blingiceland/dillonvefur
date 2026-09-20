@@ -5,13 +5,14 @@ const ADMIN_EMAIL = () => process.env.ADMIN_EMAIL || 'dillon@dillon.is';
 const SITE_URL = () => process.env.SITE_URL || 'https://www.dillon.is';
 
 export const ACTIONS = {
-    approve:       { from: ['submitted'],            to: 'approved'  },
-    reject:        { from: ['submitted'],            to: 'rejected'  },
-    played:        { from: ['approved'],             to: 'played'    },
-    cancel:        { from: ['approved'],             to: 'cancelled' },
-    withdraw:      { from: ['submitted', 'approved'], to: 'withdrawn' },
-    mark_refunded: { from: null,                     to: null        }, // fee only
-    add_note:      { from: null,                     to: null        },
+    approve:         { from: ['submitted', 'changes_requested'], to: 'approved' },
+    reject:          { from: ['submitted', 'changes_requested'], to: 'rejected' },
+    request_changes: { from: ['submitted', 'changes_requested'], to: 'changes_requested' },
+    played:          { from: ['approved'],                       to: 'played' },
+    cancel:          { from: ['approved'],                       to: 'cancelled' },
+    withdraw:        { from: ['submitted', 'changes_requested', 'approved'], to: 'withdrawn' },
+    mark_refunded:   { from: null,                               to: null }, // fee only
+    add_note:        { from: null,                               to: null },
 };
 
 export const canTransition = (action, status) => {
@@ -58,6 +59,24 @@ export const notifyBandRejected = (app, message) =>
             msg(message),
             app.fee_status === 'paid' ? 'Your booking fee is being refunded in full.\n' : '',
             'You are welcome to apply again for other dates.',
+            sign,
+        ].join('\n'),
+    });
+
+export const notifyBandChangesRequested = (app, message) =>
+    sendEmail({
+        to: app.contact_email,
+        replyTo: ADMIN_EMAIL(),
+        subject: `A few things to fix in your application, ${app.band_name} (${app.ref})`,
+        text: [
+            `Hi ${app.contact_name},`,
+            '',
+            `Thanks for applying to play at Dillon. Before we can say yes we need a couple of things changed:`,
+            msg(message),
+            'Open your application, fix it and send it again with this link (it is personal, please do not share it):',
+            `${SITE_URL()}/play/edit/${app.edit_token}`,
+            '',
+            'Everything you sent is still there; you only need to change what is mentioned above.',
             sign,
         ].join('\n'),
     });

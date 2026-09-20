@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { validateApplication, STEP_FIELDS, AUDIENCE_OPTIONS, BIO_MIN, LINK_HOSTS } from '../../utils/applicationRules';
+import { validateApplication, STEP_FIELDS, AUDIENCE_OPTIONS, BIO_MIN, LINK_HOSTS, START_TIMES } from '../../utils/applicationRules';
 import { field, fieldError, labelStyle, hintStyle, errorStyle, sectionLabel } from '../formStyles';
 import ImageUpload from './ImageUpload';
 import { EMAIL } from '../../utils/seo';
@@ -11,8 +11,8 @@ const STEPS = [
     { key: 'contact', title: 'Contact & Send' },
 ];
 
-const EMPTY = {
-    band_name: '', genre: '', based_in: '', bio: '', previous_gigs: '', line_up: '', tech_needs: '', audience_estimate: '',
+export const EMPTY = {
+    band_name: '', genre: '', based_in: '', bio: '', previous_gigs: '', line_up: '', tech_needs: '', needs_sound_engineer: '', audience_estimate: '',
     spotify_url: '', youtube_url: '', soundcloud_url: '', bandcamp_url: '', instagram_url: '', facebook_url: '', website_url: '',
     entry_type: '', ticket_price_isk: '', ticket_url: '', suggested_start_time: '21:00',
     press_photo_path: '', poster_path: '',
@@ -27,12 +27,21 @@ const Field = ({ id, label, hint, error, children }) => (
     </div>
 );
 
+const Choice = ({ name, value, current, onChange, children }) => (
+    <label style={{ padding: '10px 18px', border: `1px solid ${current === value ? '#c89b3c' : '#333'}`, background: current === value ? '#3d2f12' : '#111', color: '#f0e6cc', cursor: 'pointer' }}>
+        <input type="radio" name={name} value={value} checked={current === value} onChange={onChange} style={{ marginRight: '8px' }} />
+        {children}
+    </label>
+);
+
 /**
  * Steps 2–5 of the application. `dates` (from the calendar) is validated with the rest.
+ * New application: posts to /api/apply. Edit (band fixing things after "request changes"):
+ * pass `edit={{ token, id, initial, ownDates, existing }}` and it posts to /api/apply/edit.
  * On success calls onSubmitted({ ref }).
  */
-const ApplyForm = ({ dates, availability, onSubmitted }) => {
-    const [form, setForm] = useState(EMPTY);
+const ApplyForm = ({ dates, availability, onSubmitted, edit = null }) => {
+    const [form, setForm] = useState(() => (edit ? { ...EMPTY, ...edit.initial, agreed: false } : EMPTY));
     const [step, setStep] = useState(0);
     const [touched, setTouched] = useState({});
     const [serverError, setServerError] = useState(null);
@@ -41,7 +50,8 @@ const ApplyForm = ({ dates, availability, onSubmitted }) => {
     const topRef = useRef(null);
 
     const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e && e.target ? (e.target.type === 'checkbox' ? e.target.checked : e.target.value) : e }));
-    const { errors } = useMemo(() => validateApplication({ ...form, dates }, availability), [form, dates, availability]);
+    const options = useMemo(() => (edit ? { existingId: edit.id, ownDates: edit.ownDates } : {}), [edit]);
+    const { errors } = useMemo(() => validateApplication({ ...form, dates }, availability, options), [form, dates, availability, options]);
     const stepKey = STEPS[step].key;
     const stepErrors = STEP_FIELDS[stepKey].filter((k) => errors[k]);
     const show = (k) => (touched[k] || touched.__all) && errors[k];
@@ -66,10 +76,10 @@ const ApplyForm = ({ dates, availability, onSubmitted }) => {
         }
         setSending(true);
         try {
-            const res = await fetch('/api/apply', {
+            const res = await fetch(edit ? '/api/apply/edit' : '/api/apply', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...form, dates, startedAt: startedAt.current, website_hp: form.website_hp || '' }),
+                body: JSON.stringify({ ...form, dates, startedAt: startedAt.current, website_hp: form.website_hp || '', ...(edit ? { token: edit.token } : {}) }),
             });
             const data = await res.json();
             if (!res.ok) {
@@ -164,12 +174,8 @@ const ApplyForm = ({ dates, availability, onSubmitted }) => {
                     <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
                         <legend style={labelStyle}>Entry</legend>
                         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                            {[['free', 'Free entry'], ['ticketed', 'Ticketed']].map(([v, l]) => (
-                                <label key={v} style={{ padding: '10px 18px', border: `1px solid ${form.entry_type === v ? '#c89b3c' : '#333'}`, background: form.entry_type === v ? '#3d2f12' : '#111', color: '#f0e6cc', cursor: 'pointer' }}>
-                                    <input type="radio" name="entry_type" value={v} checked={form.entry_type === v} onChange={set('entry_type')} style={{ marginRight: '8px' }} />
-                                    {l}
-                                </label>
-                            ))}
+                            <Choice name="entry_type" value="free" current={form.entry_type} onChange={set('entry_type')}>Free entry</Choice>
+                            <Choice name="entry_type" value="ticketed" current={form.entry_type} onChange={set('entry_type')}>Ticketed</Choice>
                         </div>
                         {show('entry_type') && <p style={errorStyle}>{errors.entry_type}</p>}
                     </fieldset>
@@ -185,20 +191,31 @@ const ApplyForm = ({ dates, availability, onSubmitted }) => {
                     )}
                     <div className="apply-grid">
                         <Field id="suggested_start_time" label="Suggested start time" error={show('suggested_start_time')} hint="Most shows start at 21:00">
-                            <input id="suggested_start_time" type="time" value={form.suggested_start_time} onChange={set('suggested_start_time')} style={inp('suggested_start_time')} />
+                            <select id="suggested_start_time" value={form.suggested_start_time} onChange={set('suggested_start_time')} style={{ ...inp('suggested_start_time'), backgroundColor: '#111' }}>
+                                {START_TIMES.map((t) => <option key={t} value={t}>{t}</option>)}
+                            </select>
                         </Field>
-                        <Field id="tech_needs" label="Technical needs" hint="Optional. Backline, DI boxes, number of vocal mics, anything unusual">
-                            <textarea id="tech_needs" rows="3" value={form.tech_needs} onChange={set('tech_needs')} style={{ ...field, resize: 'vertical' }} />
-                        </Field>
+                        <fieldset style={{ border: 'none', padding: 0, margin: 0 }}>
+                            <legend style={labelStyle}>Do you need a sound engineer from us?</legend>
+                            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                                <Choice name="needs_sound_engineer" value="yes" current={form.needs_sound_engineer} onChange={set('needs_sound_engineer')}>Yes, please</Choice>
+                                <Choice name="needs_sound_engineer" value="no" current={form.needs_sound_engineer} onChange={set('needs_sound_engineer')}>No, we bring our own</Choice>
+                            </div>
+                            {show('needs_sound_engineer') ? <p style={errorStyle}>{errors.needs_sound_engineer}</p> : <p style={hintStyle}>We can provide one; the cost is agreed before the show.</p>}
+                        </fieldset>
                     </div>
+                    <Field id="tech_needs" label="Technical needs" error={show('tech_needs')} hint="Backline, DI boxes, number of vocal mics, anything unusual. Write “nothing special” if that is the case.">
+                        <textarea id="tech_needs" rows="3" value={form.tech_needs} onChange={set('tech_needs')} style={{ ...inp('tech_needs'), resize: 'vertical' }} />
+                    </Field>
                 </div>
             )}
 
             {stepKey === 'media' && (
                 <div style={{ display: 'grid', gap: '20px' }}>
                     <p style={sectionLabel}>Step 4 · Photos</p>
-                    <ImageUpload kind="press_photo" label="Press photo" required hint="A good photo of the band. JPG, PNG or WebP, under 8 MB. Landscape works best." value={form.press_photo_path} onChange={set('press_photo_path')} error={show('press_photo_path')} />
-                    <ImageUpload kind="poster" label="Poster" hint="If you already have a poster for the night. Otherwise we use the press photo." value={form.poster_path} onChange={set('poster_path')} error={show('poster_path')} />
+                    {edit && <p style={hintStyle}>Your current photos are kept unless you upload new ones.</p>}
+                    <ImageUpload kind="press_photo" label="Press photo" required hint="A good photo of the band. JPG, PNG or WebP, under 8 MB. Landscape works best." value={form.press_photo_path} onChange={set('press_photo_path')} error={show('press_photo_path')} existingUrl={edit?.existing?.press_photo_url} />
+                    <ImageUpload kind="poster" label="Poster" hint="If you already have a poster for the night. Otherwise we use the press photo." value={form.poster_path} onChange={set('poster_path')} error={show('poster_path')} existingUrl={edit?.existing?.poster_url} />
                 </div>
             )}
 
@@ -247,7 +264,7 @@ const ApplyForm = ({ dates, availability, onSubmitted }) => {
                 {step < STEPS.length - 1 ? (
                     <button type="button" className="btn btn-primary" onClick={next}>Continue</button>
                 ) : (
-                    <button type="submit" className="btn btn-primary" disabled={sending}>{sending ? 'Sending…' : 'Send Application'}</button>
+                    <button type="submit" className="btn btn-primary" disabled={sending}>{sending ? 'Sending…' : edit ? 'Send Updated Application' : 'Send Application'}</button>
                 )}
             </div>
             <p style={{ ...hintStyle, textAlign: 'right', margin: 0 }}>Questions? Email <a href={`mailto:${EMAIL}`} className="text-gold">{EMAIL}</a></p>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { usePageMeta, EMAIL } from '../utils/seo';
 import AvailabilityCalendar, { fetchAvailability, MAX_DATES } from '../components/apply/AvailabilityCalendar';
 import ApplyForm from '../components/apply/ApplyForm';
@@ -15,9 +15,10 @@ const pretty = (iso) => {
 const label = { color: '#c89b3c', letterSpacing: '4px', fontSize: '12px', textTransform: 'uppercase', margin: '0 0 10px' };
 
 const PlayAtDillon = () => {
+    const { token } = useParams(); // present on /play/edit/:token
     usePageMeta({
-        title: 'Play at Dillon',
-        path: '/play',
+        title: token ? 'Update your application' : 'Play at Dillon',
+        path: token ? '/play' : '/play',
         description: 'Apply to play a live show at Dillon Whiskey Bar, Reykjavík. See which dates are free, send us your music and tell us about the band.',
     });
 
@@ -26,13 +27,34 @@ const PlayAtDillon = () => {
     const [error, setError] = useState(null);
     const [dates, setDates] = useState([]);
     const [done, setDone] = useState(null);
+    const [edit, setEdit] = useState(null);
+    const [editError, setEditError] = useState(null);
 
     useEffect(() => {
+        if (token) {
+            const meta = document.createElement('meta');
+            meta.name = 'robots';
+            meta.content = 'noindex, nofollow';
+            document.head.appendChild(meta);
+            fetch(`/api/apply/edit?token=${encodeURIComponent(token)}`)
+                .then(async (r) => { const j = await r.json(); if (!r.ok) throw new Error(j.error || 'Link not valid'); return j; })
+                .then((j) => {
+                    setAvailability(j.availability);
+                    // the band's own dates stay selectable even though the sheet may list them as taken
+                    setAvailability({ ...j.availability, taken: j.availability.taken.filter((d) => !j.dates.includes(d)) });
+                    setDates(j.dates);
+                    setEdit({ token, id: j.id, ref: j.ref, status: j.status, message: j.message, initial: j.fields, ownDates: j.dates, existing: j.existing });
+                })
+                .catch((e) => setEditError(e.message))
+                .finally(() => setLoading(false));
+            return () => meta.remove();
+        }
         fetchAvailability()
             .then(setAvailability)
             .catch(setError)
             .finally(() => setLoading(false));
-    }, []);
+        return undefined;
+    }, [token]);
 
     const makePreferred = (iso) => setDates((d) => [iso, ...d.filter((x) => x !== iso)]);
 
@@ -40,11 +62,11 @@ const PlayAtDillon = () => {
         return (
             <div style={{ background: '#0a0a0a', padding: '60px 20px 120px' }}>
                 <div style={{ maxWidth: '640px', margin: '0 auto', textAlign: 'center', border: '1px solid var(--color-gold)', padding: 'clamp(28px, 6vw, 56px)', background: 'rgba(20,20,20,0.8)' }}>
-                    <p style={label}>Application received</p>
+                    <p style={label}>{done.updated ? 'Application updated' : 'Application received'}</p>
                     <h1 style={{ fontFamily: 'var(--font-heading)', color: '#f0e6cc', fontSize: 'clamp(32px, 6vw, 48px)', letterSpacing: '3px', textTransform: 'uppercase', margin: '0 0 16px' }}>Thanks, we’ll be in touch</h1>
                     <p style={{ color: '#ccc', fontSize: '17px', lineHeight: 1.7 }}>
-                        Your reference is <strong style={{ color: '#c89b3c', letterSpacing: '2px' }}>{done.ref}</strong>. A confirmation is on its way to your inbox.
-                        We listen to everything and usually reply within a week or two.
+                        Your reference is <strong style={{ color: '#c89b3c', letterSpacing: '2px' }}>{done.ref}</strong>.
+                        {done.updated ? ' We have the updated details and will get back to you soon.' : ' A confirmation is on its way to your inbox. We listen to everything and usually reply within a week or two.'}
                     </p>
                     <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap', marginTop: '28px' }}>
                         <Link to="/events" className="btn btn-primary">See What’s On</Link>
@@ -55,23 +77,40 @@ const PlayAtDillon = () => {
         );
     }
 
+    if (token && editError) {
+        return (
+            <div style={{ background: '#0a0a0a', padding: '60px 20px 120px', textAlign: 'center' }}>
+                <h1 style={{ fontFamily: 'var(--font-heading)', color: '#f0e6cc', fontSize: '36px', letterSpacing: '3px', textTransform: 'uppercase' }}>Link not valid</h1>
+                <p style={{ color: '#ccc', maxWidth: '520px', margin: '12px auto 0', lineHeight: 1.7 }}>{editError} If you think this is a mistake, email <a href={`mailto:${EMAIL}`} className="text-gold">{EMAIL}</a> with your reference number.</p>
+            </div>
+        );
+    }
+
     return (
         <div style={{ background: '#0a0a0a', padding: '40px 20px 100px' }}>
             <div style={{ maxWidth: '960px', margin: '0 auto' }}>
                 <header style={{ textAlign: 'center', marginBottom: '40px' }}>
-                    <p style={label}>Bands &amp; Artists</p>
+                    <p style={label}>{edit ? `Application ${edit.ref}` : 'Bands & Artists'}</p>
                     <h1 style={{ fontFamily: 'var(--font-heading)', color: '#f0e6cc', fontSize: 'clamp(36px, 6vw, 56px)', letterSpacing: '3px', textTransform: 'uppercase', margin: '0 0 16px' }}>
-                        Play at Dillon
+                        {edit ? 'Update your application' : 'Play at Dillon'}
                     </h1>
-                    <p style={{ color: '#ccc', fontSize: '18px', lineHeight: 1.7, maxWidth: '640px', margin: '0 auto' }}>
-                        Loud guitars, real bands and a room that listens. Most weekends we host live music on the top floor,
-                        and we are always looking for new acts. Pick a free date, then tell us who you are and send us
-                        something to listen to. It takes about ten minutes.
-                    </p>
+                    {edit ? (
+                        <div style={{ maxWidth: '640px', margin: '0 auto', textAlign: 'left', border: '1px solid rgba(200,155,60,0.4)', background: '#111', padding: '20px 24px' }}>
+                            <p style={{ ...label, margin: '0 0 8px' }}>Message from Dillon</p>
+                            <p style={{ color: '#e8dcc8', fontSize: '17px', lineHeight: 1.7, margin: 0, whiteSpace: 'pre-wrap' }}>{edit.message || 'Please review your application and send it again.'}</p>
+                            <p style={{ color: '#888', fontSize: '14px', margin: '12px 0 0' }}>Everything you sent is filled in below. Change what needs changing and send it again.</p>
+                        </div>
+                    ) : (
+                        <p style={{ color: '#ccc', fontSize: '18px', lineHeight: 1.7, maxWidth: '640px', margin: '0 auto' }}>
+                            Loud guitars, real bands and a room that listens. Most weekends we host live music on the top floor,
+                            and we are always looking for new acts. Pick a free date, then tell us who you are and send us
+                            something to listen to. It takes about ten minutes.
+                        </p>
+                    )}
                 </header>
 
                 <section style={{ marginBottom: '32px' }}>
-                    <p style={label}>Step 1 · Pick your dates</p>
+                    <p style={label}>Step 1 · {edit ? 'Your dates' : 'Pick your dates'}</p>
                     <p style={{ color: '#999', fontSize: '15px', margin: '0 0 20px' }}>
                         Choose a preferred date and up to {MAX_DATES - 1} alternates. Bookings open two weeks ahead and run about six months out.
                     </p>
@@ -102,11 +141,13 @@ const PlayAtDillon = () => {
                     </section>
                 )}
 
-                {availability && <ApplyForm dates={dates} availability={availability} onSubmitted={setDone} />}
+                {availability && (!token || edit) && <ApplyForm dates={dates} availability={availability} onSubmitted={setDone} edit={edit} />}
 
-                <p style={{ color: '#666', fontSize: '14px', textAlign: 'center', marginTop: '32px' }}>
-                    Private party or company event instead? <Link to="/bookdillon" className="text-gold">Book Dillon</Link>. Anything else: <a href={`mailto:${EMAIL}`} className="text-gold">{EMAIL}</a>
-                </p>
+                {!edit && (
+                    <p style={{ color: '#666', fontSize: '14px', textAlign: 'center', marginTop: '32px' }}>
+                        Private party or company event instead? <Link to="/bookdillon" className="text-gold">Book Dillon</Link>. Anything else: <a href={`mailto:${EMAIL}`} className="text-gold">{EMAIL}</a>
+                    </p>
+                )}
             </div>
         </div>
     );
