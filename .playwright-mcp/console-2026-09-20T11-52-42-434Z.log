@@ -1,6 +1,0 @@
-[     121ms] [LOG] Setting up event delegation @ https://docs.teya.com/sidebar.js:19
-[     121ms] [LOG] Event delegation set up on sidebar @ https://docs.teya.com/sidebar.js:34
-[     125ms] [LOG] TOC initialized @ https://docs.teya.com/toc.js:25
-[     126ms] [LOG] DOM Content Loaded - JavaScript is working @ https://docs.teya.com/apis/online-payments/apis:167
-[     158ms] [LOG] WARN: Could not find the language 'openapi', did you forget to load/include a language module? @ https://docs.teya.com/js/highlight.min.js:106
-[     158ms] [LOG] WARN: Falling back to no-highlight mode for this block. JSHandle@node @ https://docs.teya.com/js/highlight.min.js:106

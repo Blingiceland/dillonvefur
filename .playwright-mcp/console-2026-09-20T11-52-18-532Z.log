@@ -1,5 +1,0 @@
-[     324ms] [LOG] Setting up event delegation @ https://docs.teya.com/sidebar.js:19
-[     324ms] [LOG] Event delegation set up on sidebar @ https://docs.teya.com/sidebar.js:34
-[     335ms] [LOG] TOC initialized @ https://docs.teya.com/toc.js:25
-[     336ms] [LOG] DOM Content Loaded - JavaScript is working @ https://docs.teya.com/online-payments/payment-operations/refunds:167
-[     368ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://docs.teya.com/online-payments/payment-operations/refunds:0
