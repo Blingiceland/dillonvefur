@@ -8,6 +8,7 @@ import { slugify } from '../../src/utils/googleSheet.js';
 import { entryText } from '../../src/utils/sheetRows.js';
 import { writeEventRow, cancelEventRow } from '../../server/sheets.mjs';
 import { publicMediaUrl } from '../../server/supabase.mjs';
+import { refundIfPaid } from '../../server/payments.mjs';
 
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 
@@ -29,6 +30,7 @@ export default async function handler(req, res) {
     const now = new Date().toISOString();
     let patch = {};
     let email = null;
+    let refund = false; // reject / played / cancel / withdraw give the booking fee back
 
     try {
         switch (action) {
@@ -57,6 +59,7 @@ export default async function handler(req, res) {
             case 'reject':
                 patch = { status: 'rejected', decision_message: message || null, decided_at: now };
                 email = (a) => notifyBandRejected(a, message);
+                refund = true;
                 break;
             case 'request_changes':
                 if (!String(message || '').trim()) { res.status(400).json({ error: 'Tell the band what needs to change' }); return; }
@@ -65,15 +68,19 @@ export default async function handler(req, res) {
                 break;
             case 'played':
                 patch = { status: 'played', played_at: now };
+                email = (a) => (a.fee_status === 'refunded' ? notifyBandRefunded(a) : null);
+                refund = true;
                 break;
             case 'cancel':
                 await cancelEventRow({ isoDate: app.confirmed_date, band: app.band_name });
                 patch = { status: 'cancelled', decision_message: message || null };
                 email = (a) => notifyBandCancelled(a, message);
+                refund = true;
                 break;
             case 'withdraw':
                 if (app.status === 'approved') await cancelEventRow({ isoDate: app.confirmed_date, band: app.band_name });
                 patch = { status: 'withdrawn', decision_message: message || null };
+                refund = true;
                 break;
             case 'mark_refunded':
                 if (!['paid', 'refund_pending', 'refund_failed'].includes(app.fee_status)) { res.status(409).json({ error: 'No paid fee to mark as refunded' }); return; }
@@ -86,6 +93,11 @@ export default async function handler(req, res) {
             default:
                 res.status(400).json({ error: 'Unknown action' });
                 return;
+        }
+
+        if (refund) {
+            const logRefund = (type, payload) => db.from('application_log').insert({ application_id: id, actor: 'teya', type, payload });
+            Object.assign(patch, await refundIfPaid(app, logRefund));
         }
 
         const { data: updated, error: upErr } = await db.from('applications').update(patch).eq('id', id).select('*').single();

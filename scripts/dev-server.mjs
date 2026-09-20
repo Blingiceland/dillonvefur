@@ -53,6 +53,16 @@ http.createServer(async (req, res) => {
         if (!file) { res.writeHead(404); res.end('no such function'); return; }
         try {
             const mod = await import(pathToFileURL(file).href + `?t=${Date.now()}`);
+            if (typeof mod[req.method] === 'function' && !mod.default) {
+                // Web-standard signature (export async function POST(request) → Response)
+                const chunks = [];
+                for await (const c of req) chunks.push(c);
+                const request = new Request(`http://localhost:${port}${req.url}`, { method: req.method, headers: req.headers, body: chunks.length ? Buffer.concat(chunks) : undefined });
+                const response = await mod[req.method](request);
+                res.writeHead(response.status, Object.fromEntries(response.headers));
+                res.end(Buffer.from(await response.arrayBuffer()));
+                return;
+            }
             const shimReq = { method: req.method, headers: req.headers, socket: req.socket, query: Object.fromEntries(url.searchParams), body: await readBody(req) };
             await mod.default(shimReq, makeRes(res));
         } catch (e) {

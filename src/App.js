@@ -10,6 +10,7 @@ import WhiskyList from './pages/WhiskyList';
 import DrinksMenu from './pages/DrinksMenu';
 import NotFound from './pages/NotFound';
 import PlayAtDillon from './pages/PlayAtDillon';
+import PayStatus from './pages/PayStatus';
 import AdminGate from './pages/admin/AdminGate';
 import AdminList from './pages/admin/AdminList';
 import AdminDetail from './pages/admin/AdminDetail';
@@ -37,6 +38,8 @@ function App() {
                         <Route path="/bookdillon" element={<BookDillon />} />
                         <Route path="/play" element={<PlayAtDillon />} />
                         <Route path="/play/edit/:token" element={<PlayAtDillon />} />
+                        <Route path="/play/thanks/:token" element={<PayStatus />} />
+                        <Route path="/play/pay/:token" element={<PayStatus />} />
                         <Route path="/admin" element={<AdminGate>{({ session }) => <AdminList session={session} />}</AdminGate>} />
                         <Route path="/admin/:id" element={<AdminGate>{({ session }) => <AdminDetail session={session} />}</AdminGate>} />
                         <Route path="/whisky" element={<WhiskyList />} />

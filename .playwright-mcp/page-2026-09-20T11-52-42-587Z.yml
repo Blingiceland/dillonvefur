@@ -1,0 +1,55 @@
+- generic [active] [ref=f2e1]:
+  - navigation [ref=f2e2]:
+    - generic [ref=f2e3]:
+      - link "Teya Logo Teya Logo Developer" [ref=f2e5] [cursor=pointer]:
+        - /url: /
+        - generic [ref=f2e6]:
+          - img "Teya Logo" [ref=f2e7]
+          - img "Teya Logo" [ref=f2e8]
+        - generic [ref=f2e9]: Developer
+      - generic [ref=f2e13]:
+        - link "Partners " [ref=f2e15] [cursor=pointer]:
+          - /url: /partners/overview
+          - text: Partners
+          - generic [ref=f2e16]: 
+        - link "Businesses " [ref=f2e18] [cursor=pointer]:
+          - /url: /online-payments/overview
+          - text: Businesses
+          - generic [ref=f2e19]: 
+        - link "API Reference" [ref=f2e20] [cursor=pointer]:
+          - /url: /apis/overview
+        - link "Downloads" [ref=f2e21] [cursor=pointer]:
+          - /url: /downloads
+        - link "Changelog " [ref=f2e23] [cursor=pointer]:
+          - /url: /epos-sdk/changelog
+          - text: Changelog
+          - generic [ref=f2e24]: 
+        - link "Support" [ref=f2e25] [cursor=pointer]:
+          - /url: /support
+      - generic [ref=f2e26]:
+        - button "Search" [ref=f2e27] [cursor=pointer]:
+          - generic [ref=f2e28]: 
+          - generic [ref=f2e30]: Ctrl K
+        - button "Log in " [ref=f2e32] [cursor=pointer]:
+          - text: Log in
+          - generic [ref=f2e33]: 
+        - button "Toggle dark mode" [ref=f2e34] [cursor=pointer]:
+          - generic [ref=f2e35]: 
+  - generic [ref=f2e37]:
+    - text: 
+    - main [ref=f2e38]:
+      - generic [ref=f2e41]:
+        - generic [ref=f2e42]: 
+        - paragraph [ref=f2e43]: Loading...
+  - contentinfo [ref=f2e44]:
+    - generic [ref=f2e46]:
+      - generic [ref=f2e47]:
+        - link "Help Center" [ref=f2e48] [cursor=pointer]:
+          - /url: https://help.teya.com/
+        - link "Careers" [ref=f2e49] [cursor=pointer]:
+          - /url: https://www.teya.com/careers
+        - link "Privacy" [ref=f2e50] [cursor=pointer]:
+          - /url: https://teya.com/legal/privacy-policy
+        - link "Terms" [ref=f2e51] [cursor=pointer]:
+          - /url: https://www.teya.com/legal/general-terms
+      - paragraph [ref=f2e53]: © 2026 Teya. All rights reserved.
