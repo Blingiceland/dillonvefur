@@ -3,6 +3,7 @@ import { validateApplication, STEP_FIELDS, AUDIENCE_OPTIONS, BIO_MIN, LINK_HOSTS
 import { field, fieldError, labelStyle, hintStyle, errorStyle, sectionLabel } from '../formStyles';
 import ImageUpload from './ImageUpload';
 import { EMAIL } from '../../utils/seo';
+import { playHeaders } from '../../utils/playAccess';
 
 const STEPS = [
     { key: 'band', title: 'The Band' },
@@ -78,7 +79,7 @@ const ApplyForm = ({ dates, availability, onSubmitted, edit = null }) => {
         try {
             const res = await fetch(edit ? '/api/apply/edit' : '/api/apply', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', ...playHeaders() },
                 body: JSON.stringify({ ...form, dates, startedAt: startedAt.current, website_hp: form.website_hp || '', ...(edit ? { token: edit.token } : {}) }),
             });
             const data = await res.json();

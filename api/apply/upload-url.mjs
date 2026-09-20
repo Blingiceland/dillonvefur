@@ -3,6 +3,7 @@
 import { randomUUID } from 'node:crypto';
 import { supabaseAdmin, BUCKET } from '../../server/supabase.mjs';
 import { clientIp, hashIp, allowRequest } from '../../server/ratelimit.mjs';
+import { passesGate } from '../../server/gate.mjs';
 
 const MAX_BYTES = 8 * 1024 * 1024;
 const EXT = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp' };
@@ -13,6 +14,7 @@ export default async function handler(req, res) {
         res.status(405).json({ error: 'Method not allowed' });
         return;
     }
+    if (!passesGate(req)) { res.status(401).json({ error: 'Applications are not open yet.' }); return; }
     const { kind, contentType, size } = req.body || {};
     if (!['press_photo', 'poster'].includes(kind)) { res.status(400).json({ error: 'Unknown upload kind' }); return; }
     const ext = EXT[contentType];

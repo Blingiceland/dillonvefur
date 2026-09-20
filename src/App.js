@@ -11,6 +11,7 @@ import DrinksMenu from './pages/DrinksMenu';
 import NotFound from './pages/NotFound';
 import PlayAtDillon from './pages/PlayAtDillon';
 import PayStatus from './pages/PayStatus';
+import PlayGate from './components/apply/PlayGate';
 import AdminGate from './pages/admin/AdminGate';
 import AdminList from './pages/admin/AdminList';
 import AdminDetail from './pages/admin/AdminDetail';
@@ -36,7 +37,7 @@ function App() {
                         <Route path="/events" element={<WhatsOn />} />
                         <Route path="/events/:slug" element={<EventPage />} />
                         <Route path="/bookdillon" element={<BookDillon />} />
-                        <Route path="/play" element={<PlayAtDillon />} />
+                        <Route path="/play" element={<PlayGate><PlayAtDillon /></PlayGate>} />
                         <Route path="/play/edit/:token" element={<PlayAtDillon />} />
                         <Route path="/play/thanks/:token" element={<PayStatus />} />
                         <Route path="/play/pay/:token" element={<PayStatus />} />

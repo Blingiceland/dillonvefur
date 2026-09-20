@@ -57,9 +57,11 @@ const BookDillon = () => {
                         Private parties and company events. Fill in the details below and we get back to you within a day or two.
                         Or just call us on <a href={PHONE_HREF} className="text-gold">{PHONE}</a>.
                     </p>
-                    <p style={{ color: '#999', fontSize: '15px', marginTop: '16px' }}>
-                        A band or artist looking for a gig? <Link to="/play" className="text-gold">Apply at Play at Dillon</Link>.
-                    </p>
+                    {process.env.REACT_APP_PLAY_HIDDEN !== '1' && (
+                        <p style={{ color: '#999', fontSize: '15px', marginTop: '16px' }}>
+                            A band or artist looking for a gig? <Link to="/play" className="text-gold">Apply at Play at Dillon</Link>.
+                        </p>
+                    )}
                 </div>
 
                 <form

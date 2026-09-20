@@ -11,6 +11,7 @@ import { supabaseAdmin, BUCKET } from '../../server/supabase.mjs';
 import { clientIp, hashIp, allowRequest } from '../../server/ratelimit.mjs';
 import { notifyAdminNewApplication, notifyBandReceived } from '../../server/email.mjs';
 import { feeEnabled, createCheckoutSession, FEE_AMOUNT_ISK } from '../../server/teya.mjs';
+import { passesGate } from '../../server/gate.mjs';
 
 const MIN_FILL_SECONDS = 20;
 const SITE_URL = () => process.env.SITE_URL || 'https://www.dillon.is';
@@ -23,6 +24,7 @@ export default async function handler(req, res) {
         return;
     }
     const body = req.body || {};
+    if (!passesGate(req)) { res.status(401).json({ error: 'Applications are not open yet.' }); return; }
 
     // Honeypot: bots fill every field. Pretend it worked and drop it.
     if (body.website_hp) { res.status(200).json({ ok: true, ref: 'DLN-000000' }); return; }

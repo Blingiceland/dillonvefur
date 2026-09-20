@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { supabase } from '../../utils/supabaseClient';
 import { labelStyle, hintStyle, errorStyle } from '../formStyles';
+import { playHeaders } from '../../utils/playAccess';
 
 const ACCEPT = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_BYTES = 8 * 1024 * 1024;
@@ -28,7 +29,7 @@ const ImageUpload = ({ kind, label, hint, required, value, onChange, error, exis
         try {
             const res = await fetch('/api/apply/upload-url', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', ...playHeaders() },
                 body: JSON.stringify({ kind, contentType: file.type, size: file.size }),
             });
             const slot = await res.json();
