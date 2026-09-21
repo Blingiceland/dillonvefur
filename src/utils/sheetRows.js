@@ -19,6 +19,39 @@ export const sheetDateText = (iso) => {
     return `${WEEKDAYS[date.getUTCDay()]} ${d} ${MONTHS[m - 1]}`;
 };
 
+// The sheet keeps real date/time values in columns A and B (Google's CSV export drops text
+// cells from a date column), so the writer sends serial numbers plus the matching formats.
+export const DATE_FORMAT = { type: 'DATE', pattern: 'dddd d mmmm' };
+export const TIME_FORMAT = { type: 'TIME', pattern: 'h:mm' };
+
+/** Google Sheets date serial (days since 1899-12-30) for an ISO date. */
+export const sheetDateSerial = (iso) => {
+    const [y, m, d] = iso.split('-').map(Number);
+    return Math.round((Date.UTC(y, m - 1, d) - Date.UTC(1899, 11, 30)) / 86400000);
+};
+
+/** Fraction of a day for "HH:mm" (Google Sheets time value), or null when not a time. */
+export const sheetTimeFraction = (time) => {
+    const m = /^(\d{1,2}):(\d{2})$/.exec(String(time || '').trim());
+    if (!m) return null;
+    return (Number(m[1]) * 60 + Number(m[2])) / 1440;
+};
+
+/** updateCells request for A{row}:B{row}: typed date and start time, formatted like the rest of the tab. */
+export const dateTimeCellsRequest = ({ sheetId, rowNumber, isoDate, time }) => {
+    const t = sheetTimeFraction(time);
+    return {
+        updateCells: {
+            start: { sheetId, rowIndex: rowNumber - 1, columnIndex: 0 },
+            rows: [{ values: [
+                { userEnteredValue: { numberValue: sheetDateSerial(isoDate) }, userEnteredFormat: { numberFormat: DATE_FORMAT } },
+                t === null ? { userEnteredValue: { stringValue: String(time || '') } } : { userEnteredValue: { numberValue: t }, userEnteredFormat: { numberFormat: TIME_FORMAT } },
+            ] }],
+            fields: 'userEnteredValue,userEnteredFormat.numberFormat',
+        },
+    };
+};
+
 export const entryText = (app) =>
     app.entry_type === 'free' ? 'Free' : `${Number(app.ticket_price_isk).toLocaleString('en-GB').replace(/,/g, '.')} kr.`;
 
@@ -74,8 +107,9 @@ export const findTarget = (parsed, isoDate, band) => {
     return { mode: 'insert', rowNumber: last ? last.rowNumber + 1 : 2 };
 };
 
-/** Values for one show: columns A–F plus [colIndex, value] pairs for the optional columns. */
-export const buildRowValues = ({ isoDate, time, band, contact, genre, posterUrl, ticketUrl, entry }, cols) => ({
-    main: [sheetDateText(isoDate), time, band, contact, 'web', genre],
+/** Values for one show: text columns C–F plus [colIndex, value] pairs for the optional columns.
+ *  (A and B are written as typed date/time cells, see dateTimeCellsRequest.) */
+export const buildRowValues = ({ band, contact, genre, posterUrl, ticketUrl, entry }, cols) => ({
+    main: [band, contact, 'web', genre],
     optional: [[cols.poster, posterUrl || ''], [cols.tickets, ticketUrl || ''], [cols.entry, entry || '']],
 });

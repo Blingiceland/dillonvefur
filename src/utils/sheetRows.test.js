@@ -1,4 +1,4 @@
-import { ensureOptionalColumns, parseRows, findTarget, sheetDateText, entryText, colLetter, buildRowValues } from './sheetRows';
+import { ensureOptionalColumns, parseRows, findTarget, sheetDateText, sheetDateSerial, sheetTimeFraction, dateTimeCellsRequest, entryText, colLetter, buildRowValues } from './sheetRows';
 
 const HEADER = ['', 'Start time', 'Band', 'Contact ', 'Hver Bókar', 'Genre ', 'Private', 'Viskískóli ', '', '', ''];
 
@@ -78,9 +78,29 @@ describe('formatting helpers', () => {
         expect(colLetter(8)).toBe('I');
         expect(colLetter(26)).toBe('AA');
     });
-    test('buildRowValues writes A–F plus the optional cells', () => {
-        const v = buildRowValues({ isoDate: '2026-03-22', time: '21:00', band: 'Nöp', contact: 'x – y – z', genre: 'Pönk', posterUrl: 'https://p', ticketUrl: '', entry: 'Free' }, { poster: 8, tickets: 9, entry: 10 });
-        expect(v.main).toEqual(['Sunday 22 March', '21:00', 'Nöp', 'x – y – z', 'web', 'Pönk']);
+    test('buildRowValues writes C–F plus the optional cells', () => {
+        const v = buildRowValues({ band: 'Nöp', contact: 'x – y – z', genre: 'Pönk', posterUrl: 'https://p', ticketUrl: '', entry: 'Free' }, { poster: 8, tickets: 9, entry: 10 });
+        expect(v.main).toEqual(['Nöp', 'x – y – z', 'web', 'Pönk']);
         expect(v.optional).toEqual([[8, 'https://p'], [9, ''], [10, 'Free']]);
+    });
+    test('sheetDateSerial matches the serials Google stores', () => {
+        expect(sheetDateSerial('2026-11-27')).toBe(46353); // read from the real sheet
+        expect(sheetDateSerial('2026-11-28')).toBe(46354);
+        expect(sheetDateSerial('2027-01-01')).toBe(46388);
+    });
+    test('sheetTimeFraction converts HH:mm to a fraction of a day', () => {
+        expect(sheetTimeFraction('21:00')).toBe(0.875);
+        expect(sheetTimeFraction('20:30')).toBeCloseTo(0.854166, 5);
+        expect(sheetTimeFraction('')).toBeNull();
+        expect(sheetTimeFraction('late')).toBeNull();
+    });
+    test('dateTimeCellsRequest writes typed date and time cells with the tab formats', () => {
+        const req = dateTimeCellsRequest({ sheetId: 7, rowNumber: 201, isoDate: '2026-11-28', time: '21:00' });
+        expect(req.updateCells.start).toEqual({ sheetId: 7, rowIndex: 200, columnIndex: 0 });
+        const [a, b] = req.updateCells.rows[0].values;
+        expect(a.userEnteredValue).toEqual({ numberValue: 46354 });
+        expect(a.userEnteredFormat.numberFormat.pattern).toBe('dddd d mmmm');
+        expect(b.userEnteredValue).toEqual({ numberValue: 0.875 });
+        expect(b.userEnteredFormat.numberFormat.type).toBe('TIME');
     });
 });

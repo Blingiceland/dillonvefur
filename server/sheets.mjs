@@ -2,7 +2,7 @@
 // Auth: RS256 JWT signed with the service-account key, exchanged for an access token
 // (no googleapis dependency). Sheet logic lives in src/utils/sheetRows.js (unit tested).
 import { createSign } from 'node:crypto';
-import { ensureOptionalColumns, parseRows, findTarget, buildRowValues, colLetter } from '../src/utils/sheetRows.js';
+import { ensureOptionalColumns, parseRows, findTarget, buildRowValues, dateTimeCellsRequest, colLetter } from '../src/utils/sheetRows.js';
 
 const SHEETS = 'https://sheets.googleapis.com/v4/spreadsheets';
 const SCOPE = 'https://www.googleapis.com/auth/spreadsheets';
@@ -79,17 +79,19 @@ export const writeEventRow = async ({ isoDate, time, band, contact, genre, poste
     const target = findTarget(parsed, isoDate, band);
     if (target.mode === 'taken') throw new Error(`DATE_TAKEN: ${isoDate} already has "${target.band}" in the schedule`);
 
-    if (target.mode === 'insert') {
-        await api(':batchUpdate', {
-            method: 'POST',
-            body: JSON.stringify({ requests: [{ insertDimension: { range: { sheetId: tab.sheetId, dimension: 'ROWS', startIndex: target.rowNumber - 1, endIndex: target.rowNumber }, inheritFromBefore: true } }] }),
-        });
-    }
-
     const r = target.rowNumber;
-    const values = buildRowValues({ isoDate, time, band, contact, genre, posterUrl, ticketUrl, entry }, cols);
+    // Insert the row if needed, then write the date and start time as real date/time cells
+    // (a text date in a date column disappears from Google's CSV export, which /events reads).
+    const requests = [];
+    if (target.mode === 'insert') {
+        requests.push({ insertDimension: { range: { sheetId: tab.sheetId, dimension: 'ROWS', startIndex: r - 1, endIndex: r }, inheritFromBefore: true } });
+    }
+    requests.push(dateTimeCellsRequest({ sheetId: tab.sheetId, rowNumber: r, isoDate, time }));
+    await api(':batchUpdate', { method: 'POST', body: JSON.stringify({ requests }) });
+
+    const values = buildRowValues({ band, contact, genre, posterUrl, ticketUrl, entry }, cols);
     const data = [
-        { range: `${tab.title}!A${r}:F${r}`, values: [values.main] },
+        { range: `${tab.title}!C${r}:F${r}`, values: [values.main] },
         ...values.optional.map(([c, v]) => ({ range: `${tab.title}!${colLetter(c)}${r}`, values: [[v]] })),
     ];
     await api('/values:batchUpdate', { method: 'POST', body: JSON.stringify({ valueInputOption: 'RAW', data }) });
