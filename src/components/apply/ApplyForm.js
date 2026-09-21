@@ -186,14 +186,20 @@ const ApplyForm = ({ dates, availability, onSubmitted, edit = null }) => {
                         {show('entry_type') && <p style={errorStyle}>{errors.entry_type}</p>}
                     </fieldset>
                     {form.entry_type === 'ticketed' && (
-                        <div className="apply-grid">
-                            <Field id="ticket_price_isk" label="Ticket price (ISK)" error={show('ticket_price_isk')} hint="Between 500 and 20.000 kr.">
-                                <input id="ticket_price_isk" type="number" inputMode="numeric" min="500" max="20000" step="100" value={form.ticket_price_isk} onChange={set('ticket_price_isk')} style={inp('ticket_price_isk')} />
-                            </Field>
-                            <Field id="ticket_url" label="Ticket link" error={show('ticket_url')} hint="Optional, if tickets are already on sale (tix.is etc.)">
-                                <input id="ticket_url" type="url" inputMode="url" value={form.ticket_url} onChange={set('ticket_url')} style={inp('ticket_url')} autoComplete="off" />
-                            </Field>
-                        </div>
+                        <>
+                            <div style={{ border: '1px solid #2a2a2a', padding: '14px 16px', color: '#bbb', fontSize: '14px', lineHeight: 1.6 }}>
+                                <p style={{ margin: '0 0 6px', color: '#c89b3c', letterSpacing: '2px', fontSize: '12px', textTransform: 'uppercase' }}>Ticket sales included</p>
+                                <p style={{ margin: 0 }}>We offer advance ticket sales and QR-code scanning at the door free of charge through Dillon’s own ticketing system. As soon as your show is approved we create a ticket link at the price you choose here, and you get it by email.</p>
+                            </div>
+                            <div className="apply-grid">
+                                <Field id="ticket_price_isk" label="Ticket price (ISK)" error={show('ticket_price_isk')} hint="Between 500 and 20.000 kr.">
+                                    <input id="ticket_price_isk" type="number" inputMode="numeric" min="500" max="20000" step="100" value={form.ticket_price_isk} onChange={set('ticket_price_isk')} style={inp('ticket_price_isk')} />
+                                </Field>
+                                <Field id="ticket_url" label="Ticket link" error={show('ticket_url')} hint="Optional, only if you already sell tickets somewhere else (tix.is etc.)">
+                                    <input id="ticket_url" type="url" inputMode="url" value={form.ticket_url} onChange={set('ticket_url')} style={inp('ticket_url')} autoComplete="off" />
+                                </Field>
+                            </div>
+                        </>
                     )}
                     <div className="apply-grid">
                         <Field id="suggested_start_time" label="Suggested start time" error={show('suggested_start_time')} hint="Most shows start at 21:00">
