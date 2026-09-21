@@ -3,6 +3,7 @@
 
 export const OPEN_AFTER_DAYS = 14;   // earliest bookable date is two weeks ahead
 export const WINDOW_DAYS = 180;      // latest bookable date is about six months ahead
+export const CLOSED_WEEKDAYS = [4];  // weekdays bands can never apply for (0 = Sunday): Thursdays
 
 const pad = (n) => String(n).padStart(2, '0');
 
@@ -29,6 +30,9 @@ export const bookingWindow = (now = new Date()) => {
 };
 
 export const isInWindow = (iso, window) => isValidIso(iso) && iso >= window.from && iso <= window.to;
+
+/** False on weekdays that are never open for band applications (see CLOSED_WEEKDAYS). */
+export const isWeekdayOpen = (iso) => isValidIso(iso) && !CLOSED_WEEKDAYS.includes(new Date(`${iso}T00:00:00Z`).getUTCDay());
 
 /** "YYYY-MM" for every month from window.from to window.to */
 export const monthsInWindow = (window) => {

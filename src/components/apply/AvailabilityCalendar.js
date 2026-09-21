@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { monthsInWindow, isInWindow, addDays } from '../../utils/bookingRules';
+import { monthsInWindow, isInWindow, isWeekdayOpen, addDays } from '../../utils/bookingRules';
 
 const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -45,6 +45,7 @@ const AvailabilityCalendar = ({ value = [], onChange, availability, loading, err
 
     const dayState = (iso) => {
         if (!isInWindow(iso, availability)) return 'closed';
+        if (!isWeekdayOpen(iso)) return 'weekday';
         if (!yearsOpen.has(Number(iso.slice(0, 4)))) return 'notopen';
         if (taken.has(iso)) return 'taken';
         if (value.includes(iso)) return value[0] === iso ? 'preferred' : 'alternate';
@@ -83,6 +84,7 @@ const AvailabilityCalendar = ({ value = [], onChange, availability, loading, err
                                     const disabled = !selectable || (full && !value.includes(iso));
                                     const label = {
                                         closed: 'Outside the booking window',
+                                        weekday: 'Thursdays are not available',
                                         notopen: 'Not open for booking yet',
                                         taken: 'Already booked',
                                         requested: 'Free, but another act has asked for this date',
@@ -128,7 +130,7 @@ const AvailabilityCalendar = ({ value = [], onChange, availability, loading, err
                 .cal-wd { color: #666; font-size: 11px; letter-spacing: 1px; text-align: center; padding-bottom: 4px; }
                 .cal-day { aspect-ratio: 1; border: 1px solid var(--cal-line); background: #161616; color: #e8dcc8; font-size: 14px; cursor: pointer; padding: 0; transition: border-color 0.15s, background-color 0.15s; }
                 .cal-day:hover:not(:disabled) { border-color: #c89b3c; }
-                .cal-day.closed, .cal-day.notopen { background: transparent; color: #3a3a3a; border-color: transparent; cursor: default; }
+                .cal-day.closed, .cal-day.notopen, .cal-day.weekday { background: transparent; color: #3a3a3a; border-color: transparent; cursor: default; }
                 .cal-day.taken { background: #0e0e0e; color: #444; text-decoration: line-through; cursor: not-allowed; }
                 .cal-day.requested { border-color: #7a5f24; }
                 .cal-day.preferred { background: #c89b3c; color: #0a0a0a; border-color: #c89b3c; font-weight: 600; }

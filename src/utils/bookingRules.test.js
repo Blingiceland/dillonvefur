@@ -1,4 +1,4 @@
-import { bookingWindow, addDays, isoDate, isInWindow, monthsInWindow } from './bookingRules';
+import { bookingWindow, addDays, isoDate, isInWindow, isWeekdayOpen, monthsInWindow } from './bookingRules';
 
 describe('bookingRules', () => {
     const today = new Date(Date.UTC(2026, 8, 19)); // 2026-09-19
@@ -26,6 +26,13 @@ describe('bookingRules', () => {
         expect(isInWindow('2026-10-02', w)).toBe(false);
         expect(isInWindow('2027-03-19', w)).toBe(false);
         expect(isInWindow('not-a-date', w)).toBe(false);
+    });
+
+    test('isWeekdayOpen closes Thursdays', () => {
+        expect(isWeekdayOpen('2026-10-08')).toBe(false); // Thursday
+        expect(isWeekdayOpen('2026-10-09')).toBe(true);  // Friday
+        expect(isWeekdayOpen('2027-01-07')).toBe(false); // Thursday
+        expect(isWeekdayOpen('nope')).toBe(false);
     });
 
     test('monthsInWindow lists every month touched by the window', () => {

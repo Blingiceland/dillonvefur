@@ -74,6 +74,7 @@ describe('validateApplication', () => {
         expect(validateApplication({ ...good(), dates: [] }, availability).errors.dates).toBeTruthy();
         expect(validateApplication({ ...good(), dates: ['2026-10-01'] }, availability).errors.dates).toMatch(/window/i);
         expect(validateApplication({ ...good(), dates: ['2026-10-10'] }, availability).errors.dates).toMatch(/booked/i);
+        expect(validateApplication({ ...good(), dates: ['2026-10-08'] }, availability).errors.dates).toMatch(/thursday/i);
         expect(validateApplication({ ...good(), dates: ['2026-10-09', '2026-10-09'] }, availability).errors.dates).toMatch(/different/i);
         expect(validateApplication({ ...good(), dates: ['2026-10-09', '2026-10-16', '2026-10-17', '2026-10-18'] }, availability).errors.dates).toMatch(/three/i);
     });

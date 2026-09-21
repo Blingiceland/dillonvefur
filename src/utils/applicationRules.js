@@ -1,6 +1,6 @@
 // Validation for band applications. Runs in the browser (per step, friendly messages)
 // and again in /api/apply and /api/apply/edit (the ones that count). No dependencies, no DOM.
-import { isInWindow } from './bookingRules.js'; // extension needed: also imported by Node (api/)
+import { isInWindow, isWeekdayOpen } from './bookingRules.js'; // extension needed: also imported by Node (api/)
 
 export const BIO_MIN = 150;
 export const BIO_MAX = 2000;
@@ -83,6 +83,7 @@ export const validateApplication = (input, availability, options = {}) => {
         const yearsOpen = new Set(availability?.yearsOpen || []);
         for (const d of dates) {
             if (!isInWindow(d, availability)) { errors.dates = `${d} is outside the booking window`; break; }
+            if (!isWeekdayOpen(d)) { errors.dates = `${d} is a Thursday; Thursdays are not available, please pick another date`; break; }
             if (!yearsOpen.has(Number(d.slice(0, 4)))) { errors.dates = `The ${d.slice(0, 4)} schedule is not open yet`; break; }
             if (taken.has(d) && !own.has(d)) { errors.dates = `${d} is already booked, please pick another date`; break; }
         }
