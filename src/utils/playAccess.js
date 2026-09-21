@@ -1,4 +1,4 @@
-// Soft-launch access code for /play, kept in sessionStorage for this browser tab.
+// Soft-launch access code for /play/apply, kept in sessionStorage for this browser tab.
 const KEY = 'play-access-code';
 
 export const getPlayCode = () => { try { return sessionStorage.getItem(KEY) || ''; } catch { return ''; } };

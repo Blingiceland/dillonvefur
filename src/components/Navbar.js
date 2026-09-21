@@ -38,13 +38,7 @@ const Navbar = () => {
                 <span className="text-gold nav-dot" aria-hidden="true">•</span>
                 <Link to="/drinks" className="nav-link">Drinks Menu</Link>
                 <span className="text-gold nav-dot" aria-hidden="true">•</span>
-                <Link to="/bookdillon" className="nav-link">Book Dillon</Link>
-                {process.env.REACT_APP_PLAY_HIDDEN !== '1' && (
-                    <>
-                        <span className="text-gold nav-dot" aria-hidden="true">•</span>
-                        <Link to="/play" className="nav-link">Play at Dillon</Link>
-                    </>
-                )}
+                <Link to="/play" className="nav-link">Play at Dillon</Link>
             </div>
 
             {/* Logo Container - Larger - HIDDEN ON EVENTS PAGE */}

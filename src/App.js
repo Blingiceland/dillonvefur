@@ -10,6 +10,7 @@ import WhiskyList from './pages/WhiskyList';
 import DrinksMenu from './pages/DrinksMenu';
 import NotFound from './pages/NotFound';
 import PlayAtDillon from './pages/PlayAtDillon';
+import PlayOrParty from './pages/PlayOrParty';
 import PayStatus from './pages/PayStatus';
 import PlayGate from './components/apply/PlayGate';
 import AdminGate from './pages/admin/AdminGate';
@@ -37,7 +38,8 @@ function App() {
                         <Route path="/events" element={<WhatsOn />} />
                         <Route path="/events/:slug" element={<EventPage />} />
                         <Route path="/bookdillon" element={<BookDillon />} />
-                        <Route path="/play" element={<PlayGate><PlayAtDillon /></PlayGate>} />
+                        <Route path="/play" element={<PlayOrParty />} />
+                        <Route path="/play/apply" element={<PlayGate><PlayAtDillon /></PlayGate>} />
                         <Route path="/play/edit/:token" element={<PlayAtDillon />} />
                         <Route path="/play/thanks/:token" element={<PayStatus />} />
                         <Route path="/play/pay/:token" element={<PayStatus />} />
