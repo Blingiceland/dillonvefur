@@ -68,7 +68,9 @@ const WhatsOn = () => {
                                         <p style={{ color: '#aaa', margin: 0, letterSpacing: '1px', textTransform: 'uppercase', fontSize: '0.85rem' }}>
                                             {[event.genre, event.entry && `Entry: ${event.entry}`].filter(Boolean).join(' · ')}
                                         </p>
-                                        {event.tickets && <p className="text-gold" style={{ margin: '10px 0 0', fontSize: '0.85rem', letterSpacing: '2px', textTransform: 'uppercase' }}>Tickets available →</p>}
+                                        <p className="text-gold" style={{ margin: '10px 0 0', fontSize: '0.85rem', letterSpacing: '2px', textTransform: 'uppercase' }}>
+                                            {event.tickets ? 'Tickets available · ' : ''}More info →
+                                        </p>
                                     </div>
 
                                     {event.poster && (
