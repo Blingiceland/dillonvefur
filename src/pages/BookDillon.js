@@ -58,7 +58,7 @@ const BookDillon = () => {
                         Or just call us on <a href={PHONE_HREF} className="text-gold">{PHONE}</a>.
                     </p>
                     <p style={{ color: '#999', fontSize: '15px', marginTop: '16px' }}>
-                        A band or artist looking for a gig? <Link to="/play/apply" className="text-gold">Apply at Play at Dillon</Link>.
+                        A band or artist looking for a gig? <Link to="/play" className="text-gold">Apply at Play at Dillon</Link>.
                     </p>
                 </div>
 

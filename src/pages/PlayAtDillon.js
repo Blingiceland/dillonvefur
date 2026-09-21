@@ -18,7 +18,7 @@ const PlayAtDillon = () => {
     const { token } = useParams(); // present on /play/edit/:token
     usePageMeta({
         title: token ? 'Update your application' : 'Play at Dillon',
-        path: '/play/apply',
+        path: '/play',
         description: 'Apply to play a live show at Dillon Whiskey Bar, Reykjavík. See which dates are free, send us your music and tell us about the band.',
     });
 
