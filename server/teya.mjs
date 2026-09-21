@@ -9,8 +9,9 @@ const isStaging = () => (process.env.TEYA_ENV || 'production').toLowerCase() !==
 const API = () => (isStaging() ? 'https://api.teya.xyz' : 'https://api.teya.com');
 const ID = () => (isStaging() ? 'https://id.teya.xyz' : 'https://id.teya.com');
 
-/** True when the booking fee is switched on (credentials present). */
-export const feeEnabled = () => !!(process.env.TEYA_CLIENT_ID && process.env.TEYA_CLIENT_SECRET && process.env.TEYA_STORE_ID);
+/** True when the booking fee is switched on (credentials present and not paused with FEE_DISABLED=1).
+ *  FEE_DISABLED only stops new charges; refunds of already-paid applications keep working. */
+export const feeEnabled = () => process.env.FEE_DISABLED !== '1' && !!(process.env.TEYA_CLIENT_ID && process.env.TEYA_CLIENT_SECRET && process.env.TEYA_STORE_ID);
 
 export const FEE_AMOUNT_ISK = () => Number(process.env.FEE_AMOUNT_ISK || 10000);
 

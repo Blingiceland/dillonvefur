@@ -5,6 +5,9 @@ import ImageUpload from './ImageUpload';
 import { EMAIL } from '../../utils/seo';
 import { playHeaders } from '../../utils/playAccess';
 
+// Set REACT_APP_FEE_DISABLED=1 (with FEE_DISABLED=1 on the server) to run without the booking fee.
+const FEE_DISABLED = process.env.REACT_APP_FEE_DISABLED === '1';
+
 const STEPS = [
     { key: 'band', title: 'The Band' },
     { key: 'show', title: 'The Show' },
@@ -247,7 +250,7 @@ const ApplyForm = ({ dates, availability, onSubmitted, edit = null }) => {
                         <p style={{ margin: '0 0 10px', color: '#c89b3c', letterSpacing: '2px', fontSize: '12px', textTransform: 'uppercase' }}>How it works</p>
                         <ul style={{ margin: 0, paddingLeft: '18px' }}>
                             <li>We listen to every application and reply by email, usually within 2–3 days.</li>
-                            <li>A booking fee of 10.000 kr. is paid by card when you send the application. It is refunded in full right after your show, or immediately if we cannot fit you in. Unpaid applications are not reviewed.</li>
+                            {!FEE_DISABLED && <li>A booking fee of 10.000 kr. is paid by card when you send the application. It is refunded in full right after your show, or immediately if we cannot fit you in. Unpaid applications are not reviewed.</li>}
                             <li>If we say yes, the event goes on dillon.is and our social media using the text and photos you send here.</li>
                             <li>Dillon may decline an application without giving a reason.</li>
                         </ul>
@@ -267,7 +270,7 @@ const ApplyForm = ({ dates, availability, onSubmitted, edit = null }) => {
                 {step < STEPS.length - 1 ? (
                     <button type="button" className="btn btn-primary" onClick={next}>Continue</button>
                 ) : (
-                    <button type="submit" className="btn btn-primary" disabled={sending}>{sending ? 'Sending…' : edit ? 'Send Updated Application' : 'Send & Pay Booking Fee'}</button>
+                    <button type="submit" className="btn btn-primary" disabled={sending}>{sending ? 'Sending…' : edit ? 'Send Updated Application' : FEE_DISABLED ? 'Send Application' : 'Send & Pay Booking Fee'}</button>
                 )}
             </div>
             <p style={{ ...hintStyle, textAlign: 'right', margin: 0 }}>Questions? Email <a href={`mailto:${EMAIL}`} className="text-gold">{EMAIL}</a></p>
