@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { usePageMeta, EMAIL } from '../utils/seo';
+import { usePageMeta, EMAIL, SITE_URL } from '../utils/seo';
 import AvailabilityCalendar, { fetchAvailability, MAX_DATES } from '../components/apply/AvailabilityCalendar';
 import ApplyForm from '../components/apply/ApplyForm';
 
@@ -20,6 +20,7 @@ const PlayAtDillon = () => {
         title: token ? 'Update your application' : 'Play at Dillon',
         path: '/play',
         description: 'Apply to play a live show at Dillon Whiskey Bar, Reykjavík. See which dates are free, send us your music and tell us about the band.',
+        image: `${SITE_URL}/og-play.jpg`,
     });
 
     const [availability, setAvailability] = useState(null);

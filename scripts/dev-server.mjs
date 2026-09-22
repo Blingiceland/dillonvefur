@@ -47,6 +47,7 @@ http.createServer(async (req, res) => {
     let apiName = url.pathname.startsWith('/api/') ? url.pathname.slice(5).replace(/\/+$/, '') : null;
     const ev = url.pathname.match(/^\/events\/([^/]+)$/);
     if (ev) { apiName = 'event'; url.searchParams.set('slug', ev[1]); }
+    if (url.pathname === '/play') apiName = 'play';
 
     if (apiName) {
         const file = resolveApi(apiName);

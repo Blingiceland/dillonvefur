@@ -31,3 +31,6 @@ yarn-error.log*
 
 .env*
 .playwright-mcp/
+
+# scratch dir used by scripts/og/build-play-og.sh
+/.og-build

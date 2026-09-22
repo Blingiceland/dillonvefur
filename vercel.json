@@ -7,6 +7,7 @@
     { "source": "/merch", "destination": "/", "permanent": true }
   ],
   "rewrites": [
-    { "source": "/events/:slug", "destination": "/api/event?slug=:slug" }
+    { "source": "/events/:slug", "destination": "/api/event?slug=:slug" },
+    { "source": "/play", "destination": "/api/play" }
   ]
 }
